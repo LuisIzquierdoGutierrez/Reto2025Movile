@@ -9,11 +9,10 @@
 1. [Introducción](#introducción)
 2. [API](#api)
 3. [Estructura ](#Estructura)
-4. [Modelos (Entities)](#modelos-entities)
-5. [Repositorios (Repositories)](#repositorios-repositories)
-6. [Controladores (EndPoints)](#Endpoints)
-7. [Servicios (Services)](#servicios)
-8. [Conclusión](#conclusión)
+4. [Modelos (Entities)](#Modelos)
+5. [Controladores (EndPoints)](#Controladores)
+6. [Servicios (Services)](#servicios)
+7. [Conclusión](#conclusión)
 
 ## Introducción
 
