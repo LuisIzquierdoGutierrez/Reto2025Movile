@@ -25,10 +25,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 
-@Preview
 @Composable
-fun LogginView(){
+fun LogginView(navController: NavHostController) {
 
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
