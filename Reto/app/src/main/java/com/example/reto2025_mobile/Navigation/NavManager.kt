@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.reto2025_mobile.Views.ActividadesView
+import com.example.reto2025_mobile.Views.HomeView
 import com.example.reto2025_mobile.Views.LogginView
 
 
@@ -15,6 +17,12 @@ fun NavManager(navController: NavHostController) {
     ) {
         composable("loggin"){
             LogginView(navController)
+        }
+        composable("home"){
+            HomeView(navController)
+        }
+        composable("actividades"){
+            ActividadesView(navController)
         }
     }
 }
