@@ -3,7 +3,11 @@
 # Documentación 
 
 ## Realizado por el Equipo 
--
+-Izan
+-David
+-Cristian
+-Leila 
+-Luis
 
 
 
