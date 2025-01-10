@@ -78,7 +78,7 @@ fun LogginView(navController: NavHostController) {
             Spacer(modifier = Modifier.padding(20.dp))
 
             Button(
-                onClick = {  },
+                onClick = { navController.navigate("home") },
                 modifier = Modifier.fillMaxWidth(0.6f),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.LightGray
