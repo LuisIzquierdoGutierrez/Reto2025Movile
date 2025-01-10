@@ -25,10 +25,17 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+<<<<<<< Updated upstream
 import androidx.navigation.NavController
 
 @Composable
 fun LogginView(NavController: NavController) {
+=======
+import androidx.navigation.NavHostController
+
+@Composable
+fun LogginView(navController: NavHostController) {
+>>>>>>> Stashed changes
 
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }

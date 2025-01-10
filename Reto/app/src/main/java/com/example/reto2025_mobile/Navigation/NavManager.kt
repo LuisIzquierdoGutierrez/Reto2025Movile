@@ -11,9 +11,15 @@ import com.example.reto2025_mobile.Views.LogginView
 fun NavManager(navController: NavHostController) {
     NavHost(
         navController = navController,
+<<<<<<< Updated upstream
         startDestination = "principal"
     ) {
         composable("principal"){
+=======
+        startDestination = "loggin"
+    ) {
+        composable("loggin"){
+>>>>>>> Stashed changes
             LogginView(navController)
         }
 
