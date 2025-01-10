@@ -1,4 +1,4 @@
-package com.example.reto2025_mobile.data
+package com.example.reto2025_mobile.Model
 
 data class Actividad(
     val id: Int?,

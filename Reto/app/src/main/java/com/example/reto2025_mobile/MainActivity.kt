@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHost
+import androidx.navigation.compose.rememberNavController
+import com.example.appgatos.navigation.NavManager
 import com.example.reto2025_mobile.Views.LogginView
 import com.example.reto2025_mobile.ui.theme.Reto2025MobileTheme
 
@@ -20,7 +23,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Reto2025MobileTheme {
-                LogginView()
+                val navController = rememberNavController()
+                NavManager(navController = navController)
             }
         }
     }
