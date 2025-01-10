@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.reto2025_mobile"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.reto2025_mobile"
