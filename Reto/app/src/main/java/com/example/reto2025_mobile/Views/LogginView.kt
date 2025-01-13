@@ -37,7 +37,7 @@ fun LogginView(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Gray)
+            .background(Color(0xFF4682B4))
     ){
         Column(
             modifier = Modifier
