@@ -45,7 +45,7 @@ fun HomeView(navController: NavController) {
                 .height(1000.dp)) {
 
                 Spacer(modifier = Modifier.height(20.dp))
-                Button(
+                /*Button(
                     onClick = { navController.navigate("proximas") },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) {
@@ -58,7 +58,7 @@ fun HomeView(navController: NavController) {
                 ) {
                     Text("ACTIVIDADES")
                 }
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(20.dp))*/
             }
         }
     }
