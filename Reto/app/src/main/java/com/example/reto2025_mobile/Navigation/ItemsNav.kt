@@ -17,8 +17,8 @@ sealed class ItemsNav (
     {
         object Item_bottom_nav_home:ItemsNav(
             Icons.Filled.Home,"Home", "home")
-        object Item_bottom_nav_prox:ItemsNav(
-            Icons.Filled.DateRange,"Prox", "proximas")
+        /*object Item_bottom_nav_prox:ItemsNav(
+            Icons.Filled.DateRange,"Prox", "proximas")*/
         object Item_bottom_nav_acts:ItemsNav(
             Icons.Filled.List,"Acts", "actividades")
 

@@ -140,7 +140,7 @@ fun ActividadesTopAppBar(navController: NavController) {
         actions = {
             Box {
                 Row {
-                    /*IconButton(onClick = { expanded = true }) {
+                    IconButton(onClick = { expanded = true }) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.filter),
                             contentDescription = "Filtros"
@@ -148,7 +148,7 @@ fun ActividadesTopAppBar(navController: NavController) {
                         if(expanded){
                             Filtros(onDismiss = { expanded = false })
                         }
-                    }*/
+                    }
                 }
             }
         },
@@ -182,7 +182,7 @@ fun currentRoute(navController: NavController) :String? =
 fun BottomAppBar(navController: NavController) {
     val bar_items = listOf(
         ItemsNav.Item_bottom_nav_home,
-        ItemsNav.Item_bottom_nav_prox,
+        //ItemsNav.Item_bottom_nav_prox,
         ItemsNav.Item_bottom_nav_acts
     )
     NavigationBar(
@@ -207,13 +207,15 @@ fun Filtros(onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         confirmButton = {
-
+            Button(onClick = onDismiss) {
+                Text("Aceptar")
+            }
         },
-        dismissButton = {
+        /*dismissButton = {
             Button(onClick = onDismiss) {
                 Text("Cancelar")
             }
-        },
+        },*/
         text = {
             Column {
                 TextField(value = "", onValueChange = {  }, label = { Text("Nombre") })
