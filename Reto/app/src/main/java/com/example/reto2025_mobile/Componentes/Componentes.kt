@@ -4,8 +4,10 @@ import android.app.Activity
 import android.telecom.Call.Details
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+//import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -28,6 +31,8 @@ import androidx.compose.material3.AlertDialogDefaults
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +56,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -275,7 +281,7 @@ fun Filtros(onDismiss: () -> Unit) {
 }
 
 @Composable
-fun ActivityCalendarApp() {
+fun ActivityCalendarApp(navController: NavController) {
     // Estado para las actividades (con título y horario)
     var activities by remember { mutableStateOf(mapOf<LocalDate, Activity>()) }
 
@@ -307,16 +313,10 @@ fun ActivityCalendarApp() {
         // Mostrar información sobre el día seleccionado
         selectedDate?.let { date ->
             ActivityDetails(
+                navController = navController,
                 date = date,
-                activity = activities[date],
-                onAddActivity = { title, time ->
-                    // Añadir actividad con título y horario
-                    //activities = activities + (date to Activity(title, time))
-                },
-                onRemoveActivity = {
-                    // Eliminar actividad
-                    activities = activities - date
-                }
+                activity = activities[date]
+
             )
         }
 
@@ -355,21 +355,49 @@ fun MyDayContentWithActivities(
 
 @Composable
 fun ActivityDetails(
+    navController: NavController,
     date: LocalDate,
     activity: Activity?,
-    onAddActivity: (String, String) -> Unit,
-    onRemoveActivity: () -> Unit
+    //onAddActivity: (String, String) -> Unit,
+    //onRemoveActivity: () -> Unit
 ) {
-    var title by remember { mutableStateOf("") }
-    var time by remember { mutableStateOf("") }
+    //var title by remember { mutableStateOf("") }
+    //var time by remember { mutableStateOf("") }
 
-    Column(
+    Card (modifier = Modifier
+        .padding(8.dp)
+        .fillMaxSize(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
+        onClick = { navController.navigate("details") }
+        ) {
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+            contentAlignment = Alignment.Center) {
+            Column (modifier = Modifier
+                .fillMaxSize()) {
+                activity?.let {
+                    Text(text = "Fecha: ${date.dayOfMonth}-${date.monthValue}-${date.year}")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Título: ${it.title}")
+                    //Text(text = "Horario: ${it.time}")
+                } ?: run {
+                    Text(text = "Fecha: ${date.dayOfMonth}-${date.monthValue}-${date.year}")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = "Actividad: sin actividad programada")
+                }
+            }
+
+        }
+
+    }
+
+    /*Column(
         modifier = Modifier.padding(16.dp),
         
     ) {
-        Text(text = "Actividad para ${date.dayOfMonth}-${date.monthValue}-${date.year}")
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(text = title)
+
 
         // Si ya hay una actividad, mostrar el título y el horario
         activity?.let {
@@ -407,5 +435,5 @@ fun ActivityDetails(
                 Text(text = "Añadir actividad")
             }
         }
-    }
+    }*/
 }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.Views.ActividadesView
 import com.example.reto2025_mobile.Views.DetailsView
 import com.example.reto2025_mobile.Views.HomeView
@@ -12,7 +13,7 @@ import com.example.reto2025_mobile.Views.ProximasView
 
 
 @Composable
-fun NavManager(navController: NavHostController) {
+fun NavManager(navController: NavHostController, actividadViewModel: ActividadViewModel) {
     NavHost(
         navController = navController,
         startDestination = "loggin"
@@ -24,7 +25,7 @@ fun NavManager(navController: NavHostController) {
             HomeView(navController)
         }
         composable("actividades"){
-            ActividadesView(navController)
+            ActividadesView(navController, actividadViewModel)
         }
         composable("proximas"){
             ProximasView(navController)
