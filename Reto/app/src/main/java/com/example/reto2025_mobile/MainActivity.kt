@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.navigation.compose.rememberNavController
 import com.example.reto2025_mobile.Navigation.NavManager
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
+import com.example.reto2025_mobile.Views.PicturesView
 import com.example.reto2025_mobile.ui.theme.Reto2025MobileTheme
 
 class MainActivity : ComponentActivity() {
@@ -16,6 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Reto2025MobileTheme {
+
                 val actividadViewModel by viewModels<ActividadViewModel>()
                 val navController = rememberNavController()
                 NavManager(navController, actividadViewModel)
