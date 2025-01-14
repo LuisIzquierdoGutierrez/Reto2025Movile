@@ -1,6 +1,7 @@
 package com.example.reto2025_mobile.Views
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -60,18 +61,11 @@ fun HomeView(navController: NavController) {
                 .height(1000.dp)
                 ) {
                 Spacer(modifier = Modifier.size(20.dp))
+
                 Box(modifier = Modifier.weight(0.5f)){
-                    ActivityCalendarApp()
-                    // imagen para comprobar espacio
-                    /*Image(
-                        painter = painterResource(id = R.drawable.imagen),
-                        contentDescription = "Logo",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        contentScale = ContentScale.Crop
-                    )*/
+                    ActivityCalendarApp(navController)
                 }
+
                 Spacer(modifier = Modifier.size(20.dp))
                 Text(text = "Actividades Proximas",
                     fontSize = 24.sp,
@@ -116,6 +110,9 @@ fun HomeView(navController: NavController) {
                     }
                 }
             }
+        }
+        BackHandler {
+
         }
     }
 }

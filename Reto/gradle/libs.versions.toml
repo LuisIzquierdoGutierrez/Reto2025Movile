@@ -12,6 +12,7 @@ navigationRuntimeKtx = "2.8.5"
 navigationCompose = "2.8.5"
 osmdroid = "6.1.11"
 preferenceKtx = "1.2.1"
+runtimeLivedata = "1.7.5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +35,7 @@ osmdroid-android = { module = "org.osmdroid:osmdroid-android", version.ref = "os
 osmdroid-wms = { module = "org.osmdroid:osmdroid-wms", version.ref = "osmdroid" }
 androidx-preference-ktx = { group = "androidx.preference", name = "preference-ktx", version.ref = "preferenceKtx" }
 compose-calendar = { group = "io.github.boguszpawlowski.composecalendar", name = "composecalendar", version = "1.2.1" }
+androidx-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata", version.ref = "runtimeLivedata" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

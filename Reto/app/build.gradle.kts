@@ -62,6 +62,10 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
 
+    implementation(libs.androidx.runtime.livedata)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
     implementation(libs.osmdroid.android)
     implementation(libs.osmdroid.wms)
     implementation("io.github.boguszpawlowski.composecalendar:composecalendar:1.3.0")
