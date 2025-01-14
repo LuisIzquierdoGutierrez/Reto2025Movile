@@ -25,7 +25,7 @@
 
 
 ## API
-Para el desarrollo de la API se ha generado un proyecto java con Spring.  
+[https://github.com/PauDiSan/ProyectoIntermodularEquipoA2/tree/main](https://github.com/PauDiSan/ProyectoIntermodularEquipoA2/tree/main)  
 
 ## Estructura
 
