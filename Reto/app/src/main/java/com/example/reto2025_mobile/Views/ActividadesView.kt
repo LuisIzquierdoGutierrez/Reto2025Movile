@@ -37,7 +37,7 @@ import com.example.reto2025_mobile.data.Actividad
 
 @Composable
 fun ActividadesView(navController: NavController, actividadViewModel: ActividadViewModel) {
-    val actividades: List<Actividad> by actividadViewModel.actividades.observeAsState(emptyList());
+        val actividades: List<Actividad> by actividadViewModel.actividades.observeAsState(emptyList());
     Scaffold (
         topBar = { ActividadesTopAppBar(navController) },
         bottomBar = { BottomAppBar(navController = navController) }
