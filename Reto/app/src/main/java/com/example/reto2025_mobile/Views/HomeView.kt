@@ -65,7 +65,7 @@ fun HomeView(navController: NavController, actividadViewModel: ActividadViewMode
                     modifier = Modifier.align(Alignment.CenterHorizontally) )
                 LazyColumn (modifier = Modifier.weight(0.5f)){
                     items(actividades) { actividad ->
-                        //if(actividad.fechaInicio >= LocalDate.now().toString() && actividad.fechaInicio <= LocalDate.now().plusDays(7).toString()){
+                        if(actividad.fini >= LocalDate.now().toString() && actividad.fini <= LocalDate.now().plusDays(7).toString()){
                             Card (modifier = Modifier
                                 .weight(1f)
                                 .padding(8.dp)
@@ -77,9 +77,7 @@ fun HomeView(navController: NavController, actividadViewModel: ActividadViewMode
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
+                                        .padding(16.dp)
                                 ) {
                                     Column {
                                         Text(
@@ -87,19 +85,19 @@ fun HomeView(navController: NavController, actividadViewModel: ActividadViewMode
                                             fontSize = 18.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Color(0xFF000000),
-                                            textAlign = TextAlign.Center
+                                            textAlign = TextAlign.Start
                                         )
                                         Text(
-                                            text = "Fecha Actividad ${actividad.fechaInicio}",
-                                            fontSize = 10.sp,
+                                            text = "Fecha Actividad: ${actividad.fini}",
+                                            fontSize = 14.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Color(0xFF000000),
-                                            textAlign = TextAlign.Center
+                                            textAlign = TextAlign.Start
                                         )
                                     }
                                 }
                             }
-                        //}
+                        }
 
                     }
                 }
