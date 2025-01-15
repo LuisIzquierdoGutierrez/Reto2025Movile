@@ -1,5 +1,6 @@
 package com.example.reto2025_mobile.Views
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,7 +58,10 @@ fun ActividadesView(navController: NavController, actividadViewModel: ActividadV
                                 .fillMaxHeight(),
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
-                            onClick = { navController.navigate("details") }
+                            onClick = {
+                                actividadViewModel.getActividadById(actividad.id)
+                                navController.navigate("details")
+                            }
                         ) {
                             Row(
                                 modifier = Modifier
@@ -82,5 +86,8 @@ fun ActividadesView(navController: NavController, actividadViewModel: ActividadV
                 }
             }
         }
+    }
+    BackHandler {
+        navController.navigate("home")
     }
 }

@@ -1,6 +1,7 @@
 package com.example.reto2025_mobile.Views
 
 import android.annotation.SuppressLint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -125,7 +126,9 @@ fun FAQView(navController: NavController) {
             }
         }
     }
-
+    BackHandler {
+        navController.navigate("home")
+    }
 }
 
 @Composable
