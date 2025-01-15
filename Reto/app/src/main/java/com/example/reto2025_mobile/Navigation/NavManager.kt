@@ -24,7 +24,7 @@ fun NavManager(navController: NavHostController, actividadViewModel: ActividadVi
             LogginView(navController)
         }
         composable("home"){
-            HomeView(navController)
+            HomeView(navController, actividadViewModel)
         }
         composable("actividades"){
             ActividadesView(navController, actividadViewModel)
