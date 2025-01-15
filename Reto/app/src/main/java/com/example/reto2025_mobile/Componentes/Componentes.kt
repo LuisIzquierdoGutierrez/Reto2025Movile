@@ -124,7 +124,7 @@ fun DetailTopBar(navController: NavController) {
                             contentDescription = "añadir imagenes"
                         )
                     }
-                    IconButton(onClick = { }) {
+                    IconButton(onClick = { navController.navigate("pictures") }) {
                         Icon(
                             imageVector = ImageVector.vectorResource(R.drawable.photo),
                             contentDescription = "añadir imagenes"
@@ -235,8 +235,8 @@ fun currentRoute(navController: NavController) :String? =
 fun BottomAppBar(navController: NavController) {
     val bar_items = listOf(
         ItemsNav.Item_bottom_nav_home,
-        //ItemsNav.Item_bottom_nav_prox,
-        ItemsNav.Item_bottom_nav_acts
+        ItemsNav.Item_bottom_nav_acts,
+        ItemsNav.Item_bottom_nav_faq
     )
     NavigationBar(
         containerColor = Color(0xFF4682B4),
