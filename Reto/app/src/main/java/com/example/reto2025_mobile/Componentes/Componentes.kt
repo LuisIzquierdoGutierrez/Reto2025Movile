@@ -80,11 +80,11 @@ fun AppBar(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailTopBar(navController: NavController) {
+fun DetailTopBar(navController: NavController, titulo: String) {
     TopAppBar(
         title = {
             Text(
-                "nombre Actividad",
+                titulo,
                 color = Color.White,
                 fontSize = 22.sp,
                 fontWeight = FontWeight.Bold
