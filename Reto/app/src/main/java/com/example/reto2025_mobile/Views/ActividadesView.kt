@@ -47,7 +47,6 @@ fun ActividadesView(navController: NavController, actividadViewModel: ActividadV
             .fillMaxSize()
             .padding(innerPadding)) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Text(text = actividades.size.toString())
                 Spacer(modifier = Modifier.height(20.dp))
                 LazyColumn {
                     items(actividades){actividad ->
