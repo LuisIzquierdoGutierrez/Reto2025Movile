@@ -2,8 +2,10 @@ package com.example.reto2025_mobile.Navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.Views.ActividadesView
 import com.example.reto2025_mobile.Views.DetailsView
@@ -33,7 +35,7 @@ fun NavManager(navController: NavHostController, actividadViewModel: ActividadVi
             ProximasView(navController)
         }
         composable("details"){
-            DetailsView(navController)
+            DetailsView(navController, actividadViewModel)
         }
         composable("FAQ"){
             FAQView(navController)

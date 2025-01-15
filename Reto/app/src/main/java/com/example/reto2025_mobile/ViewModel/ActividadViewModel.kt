@@ -12,7 +12,8 @@ import kotlinx.coroutines.launch
 class ActividadViewModel:ViewModel() {
 
 
-
+    private val _actividad = MutableLiveData<Actividad>()
+    val actividad: LiveData<Actividad> = _actividad
     private val _actividades = MutableLiveData<List<Actividad>>()
     val actividades: LiveData<List<Actividad>> = _actividades
 
@@ -25,6 +26,18 @@ class ActividadViewModel:ViewModel() {
                 _actividades.value = actividadesList
                 Log.d("Actividades", "Received list: $actividadesList")
                 _actividades.value = actividadesList
+            } catch (e: Exception) {
+                Log.d("Actividades", "$e")
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun getActividadById(id: Int?) {
+        viewModelScope.launch {
+            try {
+                _actividad.value = service.getActividadById(id!!)// las dos exclamaciones son para que no sea nulo
+                Log.d("Actividades", "Received list: $actividad")
             } catch (e: Exception) {
                 Log.d("Actividades", "$e")
                 e.printStackTrace()

@@ -4,6 +4,9 @@ import com.example.reto2025_mobile.data.Actividad
 import com.example.reto2025_mobile.data.Contrato
 import com.example.reto2025_mobile.data.Curso
 import com.example.reto2025_mobile.data.Departamento
+import com.example.reto2025_mobile.data.EmpTransporte
+import com.example.reto2025_mobile.data.Foto
+import com.example.reto2025_mobile.data.Grupo
 import com.example.reto2025_mobile.data.GrupoParticipante
 import com.example.reto2025_mobile.data.ProfParticipante
 import com.example.reto2025_mobile.data.ProfResponsable
@@ -11,10 +14,14 @@ import com.example.reto2025_mobile.data.Profesor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 
 interface RetrofitService {
     @GET("actividades")
     suspend fun getActividades(): List<Actividad>
+
+    @GET("actividades/{id}")
+    suspend fun getActividadById(@Path("id") id: Int): Actividad
 
     @GET("contratos")
     suspend fun getContratos(): List<Contrato>
@@ -36,12 +43,25 @@ interface RetrofitService {
 
     @GET("profesoresResponsables")
     suspend fun getProfesoresResponsables(): List<ProfResponsable>
+
+    @GET("transportes")
+    suspend fun getTransportes(): List<EmpTransporte>
+
+    @GET("grupos")
+    suspend fun getGrupos(): List<Grupo>
+
+    @GET("fotos")
+    suspend fun getFotos(): List<Foto>
+
+
+
+
 }
 
 object RetrofitServiceFactory {
     fun makeRetrofitService(): RetrofitService {
         return Retrofit.Builder()
-            .baseUrl("http://192.168.1.132:8080/acex/")
+            .baseUrl("http://10.0.22.68:8080/acex/")
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(RetrofitService::class.java)
     }
