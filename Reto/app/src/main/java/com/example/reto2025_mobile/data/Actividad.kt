@@ -19,6 +19,6 @@ data class Actividad(
     val comentEstado: String?,
     val incidencias: String?,
     val urlFolleto: String?,
-    val solicitanteId: String, // ID de quien solicite la actividad
+    val solicitante: Profesor,
     val importePorAlumno: Double? //Importe que se dara por alumno
 )
