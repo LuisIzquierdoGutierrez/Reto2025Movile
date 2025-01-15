@@ -1,7 +1,6 @@
 package com.example.reto2025_mobile.Views
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -55,7 +54,7 @@ fun HomeView(navController: NavController, actividadViewModel: ActividadViewMode
                 Spacer(modifier = Modifier.size(20.dp))
 
                 Box(modifier = Modifier.weight(0.5f)){
-                    ActivityCalendarApp(navController)
+                    ActivityCalendarApp(navController, actividades)
                 }
 
                 Spacer(modifier = Modifier.size(20.dp))
