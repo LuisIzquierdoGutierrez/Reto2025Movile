@@ -15,6 +15,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface RetrofitService {
     @GET("actividades")
@@ -52,6 +53,12 @@ interface RetrofitService {
 
     @GET("fotos")
     suspend fun getFotos(): List<Foto>
+
+    @GET("profesores/inicio")
+    suspend fun login(
+        @Query("correo") correo: String,
+        @Query("password") password: String
+    ): Profesor
 
 
 

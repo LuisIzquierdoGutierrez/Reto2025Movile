@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -33,11 +32,18 @@ import com.example.reto2025_mobile.Componentes.ActivityCalendarApp
 import com.example.reto2025_mobile.Componentes.BottomAppBar
 import com.example.reto2025_mobile.Componentes.HomeAppBar
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
+import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
+import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.data.Actividad
 import java.time.LocalDate
 
 @Composable
-fun HomeView(navController: NavController, actividadViewModel: ActividadViewModel) {
+fun HomeView(
+    navController: NavController,
+    actividadViewModel: ActividadViewModel,
+    profParticipanteViewModel: ProfParticipanteViewModel,
+    grupoParticipanteViewModel: GrupoParticipanteViewModel
+) {
     val actividades: List<Actividad> by actividadViewModel.actividades.observeAsState(emptyList());
     Scaffold (
         topBar = { HomeAppBar(navController) },
@@ -49,12 +55,10 @@ fun HomeView(navController: NavController, actividadViewModel: ActividadViewMode
             .padding(innerPadding)) {
             Column(modifier = Modifier
                 .fillMaxWidth()
-                .height(1000.dp)
                 ) {
-                Spacer(modifier = Modifier.size(20.dp))
 
-                Box(modifier = Modifier.weight(0.5f)){
-                    ActivityCalendarApp(navController, actividades)
+                Box(modifier = Modifier.weight(0.6f)){
+                    ActivityCalendarApp(navController, actividades, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel)
                 }
 
                 Spacer(modifier = Modifier.size(20.dp))
@@ -73,6 +77,8 @@ fun HomeView(navController: NavController, actividadViewModel: ActividadViewMode
                                 colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
                                 onClick = {
                                     actividadViewModel.getActividadById(actividad.id)
+                                    profParticipanteViewModel.getProfesoresParticipantes()
+                                    grupoParticipanteViewModel.getGruposParticipantes()
                                     navController.navigate("details") })
                             {
                                 Row(

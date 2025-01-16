@@ -10,6 +10,7 @@ data class Profesor(
     val rol: String,
     val activo: Boolean,
     val urlFoto: String?,
-    val depId: Int,
-    val esJefeDep: Boolean?
+    val esJefeDep: Boolean?,
+    val depart: Departamento
+
 )
