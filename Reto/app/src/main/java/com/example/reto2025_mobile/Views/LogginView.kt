@@ -49,6 +49,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.format.TextStyle
+import kotlin.math.log
 
 @Composable
 fun LogginView(
@@ -57,6 +58,7 @@ fun LogginView(
 ) {
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
+    var login by remember { mutableStateOf(true)}
     val context = LocalContext.current
     val loginResult by profesorLoginViewModel.loginResult.observeAsState()
     val errorMessage by profesorLoginViewModel.errorMessage.observeAsState()
@@ -134,7 +136,7 @@ fun LogginView(
                     modifier = Modifier
                         .padding(top = 16.dp)
                 )
-            } else {
+            }else if (login) {
                 errorMessage?.let {
                     Text(
                         text = it,
@@ -146,6 +148,7 @@ fun LogginView(
                 }
 
                 loginResult?.let {
+                    login = false
                     // Aquí puedes manejar la navegación o cualquier acción después de un inicio de sesión exitoso
                     navController.navigate("home")
                 }
