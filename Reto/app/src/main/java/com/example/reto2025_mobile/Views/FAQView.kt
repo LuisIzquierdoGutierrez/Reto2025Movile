@@ -35,7 +35,7 @@ fun FAQView(navController: NavController) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(15.dp)
+                .padding(55.dp)
         ) {
             // Título de la normativa
             Text(
