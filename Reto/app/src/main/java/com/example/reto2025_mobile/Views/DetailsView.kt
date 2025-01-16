@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.example.reto2025_mobile.Componentes.DetailTopBar
+import com.example.reto2025_mobile.Componentes.MapScreen
 import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
@@ -389,7 +390,7 @@ fun DetailsView(
                                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                         ) }) {
                                             Icon(
-                                                imageVector = ImageVector.vectorResource(R.drawable.photo),
+                                                imageVector = ImageVector.vectorResource(R.drawable.addphoto),
                                                 contentDescription = "añadir imagenes",
                                                 modifier = Modifier.size(32.dp)
                                             )
@@ -455,7 +456,7 @@ fun DetailsView(
                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                         IconButton(onClick = { /*TODO*/ }) {
                                             Icon(
-                                                imageVector = Icons.Default.Send,
+                                                imageVector = ImageVector.vectorResource(R.drawable.save),
                                                 contentDescription = "subir imagenes",
                                                 modifier = Modifier.size(32.dp)
                                             )
@@ -472,11 +473,7 @@ fun DetailsView(
                                     colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
                                 ) {
                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = Icons.Default.LocationOn,
-                                            contentDescription = "localizacion",
-                                            modifier = Modifier.size(32.dp)
-                                        )
+                                        MapScreen()
                                     }
                                 }
                             }

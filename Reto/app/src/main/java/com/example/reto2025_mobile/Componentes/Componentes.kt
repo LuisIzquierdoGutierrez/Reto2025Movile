@@ -1,5 +1,6 @@
 package com.example.reto2025_mobile.Componentes
 
+import android.graphics.DashPathEffect
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -40,11 +41,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.reto2025_mobile.Navigation.ItemsNav
@@ -56,6 +59,10 @@ import com.example.reto2025_mobile.data.Actividad
 import io.github.boguszpawlowski.composecalendar.Calendar
 import io.github.boguszpawlowski.composecalendar.day.DayState
 import io.github.boguszpawlowski.composecalendar.rememberCalendarState
+import org.osmdroid.util.GeoPoint
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
+import org.osmdroid.views.overlay.Polyline
 import java.time.LocalDate
 
 // Top Bar
@@ -440,4 +447,52 @@ fun ActivityDetails(
         }
     }
 
+}
+
+// mapa
+
+@Composable
+fun MapScreen() {
+    val context = LocalContext.current
+
+    val puntosDeInteres = listOf(
+        GeoPoint(43.35257675380246, -4.062506714329061), // Coordenadas 1
+        GeoPoint(43.3530000, -4.0610000), // Coordenadas 2
+        GeoPoint(43.3500000, -4.0650000)
+    )
+
+    AndroidView(
+        factory = {
+            MapView(context).apply {
+                setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
+                controller.setCenter(GeoPoint(43.35257675380246, -4.062506714329061)) // Coordenadas de inicio
+                controller.setZoom(18) // Nivel de zoom
+
+                // Añadir los marcadores con títulos secuenciales
+                puntosDeInteres.forEachIndexed { index, geoPoint ->
+                    val title = "Punto de Interés ${index + 1}"  // Título secuencial
+                    addMarker(geoPoint, title)
+                }
+
+                val polyline = Polyline()
+                puntosDeInteres.forEach { geoPoint ->
+                    polyline.addPoint(geoPoint)  // Añadir puntos al Polyline
+                }
+
+                // Hacer la línea discontinua
+                val dashEffect = DashPathEffect(floatArrayOf(10f, 5f), 0f) // 10px línea y 5px espacio
+                polyline.outlinePaint.pathEffect = dashEffect
+                overlays.add(polyline)  // Añadir la línea al mapa
+            }
+        },
+        modifier = Modifier.fillMaxSize() // El mapa se ajusta al tamaño de su contenedor
+    )
+}
+
+// Función para añadir un marcador en el mapa
+fun MapView.addMarker(location: GeoPoint, title: String) {
+    val marker = Marker(this)
+    marker.position = location
+    marker.title = title
+    overlays.add(marker)
 }
