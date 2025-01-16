@@ -33,11 +33,18 @@ import androidx.navigation.NavController
 import com.example.reto2025_mobile.Componentes.ActividadesTopAppBar
 import com.example.reto2025_mobile.Componentes.BottomAppBar
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
+import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
+import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.data.Actividad
 
 
 @Composable
-fun ActividadesView(navController: NavController, actividadViewModel: ActividadViewModel) {
+fun ActividadesView(
+    navController: NavController,
+    actividadViewModel: ActividadViewModel,
+    profParticipanteViewModel: ProfParticipanteViewModel,
+    grupoParticipanteViewModel: GrupoParticipanteViewModel
+) {
         val actividades: List<Actividad> by actividadViewModel.actividades.observeAsState(emptyList());
     Scaffold (
         topBar = { ActividadesTopAppBar(navController) },
@@ -60,6 +67,8 @@ fun ActividadesView(navController: NavController, actividadViewModel: ActividadV
                             colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
                             onClick = {
                                 actividadViewModel.getActividadById(actividad.id)
+                                profParticipanteViewModel.getProfesoresParticipantes()
+                                grupoParticipanteViewModel.getGruposParticipantes()
                                 navController.navigate("details")
                             }
                         ) {
