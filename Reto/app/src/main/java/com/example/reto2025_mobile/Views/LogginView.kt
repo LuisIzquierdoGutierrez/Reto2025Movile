@@ -16,9 +16,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -58,9 +63,7 @@ fun LogginView(
 ) {
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
-    var login by remember {
-        mutableStateOf(true)
-    }
+    var login by remember { mutableStateOf(true) }
     val context = LocalContext.current
     val loginResult by profesorLoginViewModel.loginResult.observeAsState()
     val errorMessage by profesorLoginViewModel.errorMessage.observeAsState()
@@ -69,70 +72,77 @@ fun LogginView(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF3F51B5))
+            .background(Color(0xFFFFFFF))
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp),
+                .padding(horizontal = 32.dp)
+                .padding(top = 50.dp),  // Mantén un padding horizontal fijo
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top  // Mantén los elementos alineados en la parte superior
         ) {
+            // Imagen
             Image(
-                painter = painterResource(id = R.drawable.imagen),
+                painter = painterResource(id = R.drawable.logo),
                 contentDescription = "Logo de la App",
                 modifier = Modifier
-                    .size(220.dp)
-                    .padding(bottom = 40.dp)
+                    .size(300.dp)
+                    .padding(top = 220.dp)// Aumenta el tamaño de la imagen sin afectar el layout
             )
 
-            Text(
-                text = "INICIAR SESIÓN",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = Color.White,
-                modifier = Modifier.padding(bottom = 40.dp)
-            )
 
-            TextField(
+
+            // Campo de Usuario
+            OutlinedTextField(
                 value = user,
                 onValueChange = { user = it },
-                label = { Text("Usuario") },
+                label = { Text("Correo electrónico") },
+                leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Icono de usuario") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 20.dp),
-                shape = RoundedCornerShape(8.dp)
+                    .padding(vertical = 12.dp), // Margen uniforme vertical
+                shape = RoundedCornerShape(12.dp), // Bordes más suaves
+
             )
 
-            TextField(
+// Campo de Contraseña
+            OutlinedTextField(
                 value = pass,
                 onValueChange = { pass = it },
                 label = { Text("Contraseña") },
+                leadingIcon = { Icon(imageVector = Icons.Default.Lock, contentDescription = "Icono de contraseña") },
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 40.dp),
-                shape = RoundedCornerShape(8.dp)
+                    .padding(vertical = 12.dp), // Margen uniforme vertical
+                shape = RoundedCornerShape(12.dp), // Bordes más suaves
+                //colors = TextFieldDefaults.outlinedTextFieldColors(
+
             )
 
+            // Botón de acceso
             Button(
                 onClick = { profesorLoginViewModel.login(user, pass) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(top = 20.dp),  // Padding superior para el botón
                 shape = RoundedCornerShape(50.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1E88E5))
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF5D8B11),  // Verde moderno
+                    contentColor = Color.White  // Texto blanco
+                )
             ) {
                 Text(
                     text = "Acceder",
                     fontSize = 20.sp,
-                    color = Color.White,
                     fontWeight = FontWeight.Bold
                 )
             }
 
+            // Indicador de carga
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier
@@ -151,8 +161,6 @@ fun LogginView(
 
                 loginResult?.let {
                     login = false
-                    Log.d("test","login")
-                    // Aquí puedes manejar la navegación o cualquier acción después de un inicio de sesión exitoso
                     navController.navigate("home")
                 }
             }
@@ -161,7 +169,8 @@ fun LogginView(
             Text(
                 text = "¿Olvidaste tu contraseña?",
                 fontSize = 16.sp,
-                color = Color(0xFFBBDEFB),
+                fontWeight = FontWeight.ExtraBold,
+                color = Color(0xFF8BC34A),
                 modifier = Modifier.clickable {
                     // Acción de redirección aquí
                 }

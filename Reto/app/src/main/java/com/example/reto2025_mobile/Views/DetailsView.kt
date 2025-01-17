@@ -353,15 +353,6 @@ fun DetailsView(
                             }
                             item {
                                 Column {
-                                    val selectedImageUris = remember { mutableStateListOf<Uri?>() }
-                                    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
-                                        contract = ActivityResultContracts.PickMultipleVisualMedia(),
-                                        onResult = { uris ->
-                                            uris.forEach { uri ->
-                                                uri?.let { selectedImageUris.add(it) }
-                                            }
-                                        }
-                                    )
                                     Row(
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -375,7 +366,10 @@ fun DetailsView(
                                                         .fillMaxHeight()
                                                         .width(60.dp),
                                                     shape = RoundedCornerShape(12.dp),
-                                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
+                                                    onClick = {
+                                                        
+                                                    }
                                                 ) {
                                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                                         Icon(
