@@ -368,7 +368,7 @@ fun DetailsView(
                                                     shape = RoundedCornerShape(12.dp),
                                                     colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
                                                     onClick = {
-                                                        
+
                                                     }
                                                 ) {
                                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
