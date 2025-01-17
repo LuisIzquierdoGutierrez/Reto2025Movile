@@ -1,6 +1,10 @@
 package com.example.reto2025_mobile.Componentes
 
 import android.graphics.DashPathEffect
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -8,20 +12,31 @@ import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +49,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,21 +57,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import coil.compose.AsyncImage
 import com.example.reto2025_mobile.Navigation.ItemsNav
 import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.data.Actividad
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberMarkerState
 import io.github.boguszpawlowski.composecalendar.Calendar
 import io.github.boguszpawlowski.composecalendar.day.DayState
 import io.github.boguszpawlowski.composecalendar.rememberCalendarState
@@ -98,6 +123,8 @@ fun AppBar(navController: NavController) {
 @Composable
 fun DetailTopBar(navController: NavController, titulo: String) {
     var expanded by remember { mutableStateOf(false) }
+    var showIncidencia by remember { mutableStateOf(false) }
+
     TopAppBar(
         title = {
             Text(
@@ -118,16 +145,11 @@ fun DetailTopBar(navController: NavController, titulo: String) {
         ),
         actions = {
             Box {
-                Row {
-                    IconButton(onClick = { expanded = true }) {
-                        Icon(
-                            imageVector = Icons.Default.Create,
-                            contentDescription = "añadir incidencia"
-                        )
-                    }
-                    if(expanded){
-                    Incidencias(onDismiss = { expanded = false })
-                    }
+                IconButton(onClick = { showIncidencia = true}) {
+                    Icon(imageVector = Icons.Default.Create, contentDescription = "Incidencias")
+                }
+                if(showIncidencia) {
+                    Incidencias(onDismiss = { showIncidencia = false })
                 }
             }
         },
@@ -288,6 +310,142 @@ fun Incidencias(onDismiss: () -> Unit) {
 }
 
 @Composable
+fun Mapa(onDismiss: () -> Unit) {
+    AlertDialog(
+        modifier = Modifier
+            .fillMaxWidth()
+            .size(400.dp),
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Aceptar")
+            }
+        },
+        text = {
+            Column {
+                Box(modifier = Modifier.size(300.dp)) {
+                    MapScreen()
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun Fotos(onDismiss: () -> Unit) {
+
+    AlertDialog(
+        modifier = Modifier
+            .fillMaxWidth()
+            .size(800.dp),
+        onDismissRequest = onDismiss,
+        confirmButton = {
+        },
+        text = {
+            Column {
+                val selectedImageUris = remember { mutableStateListOf<Uri?>() }
+                val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.PickMultipleVisualMedia(),
+                    onResult = { uris ->
+                        uris.forEach { uri ->
+                            uri?.let { selectedImageUris.add(it) }
+                        }
+                    }
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .weight(0.5f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            IconButton(onClick = {
+                                multiplePhotoPickerLauncher.launch(
+                                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                ) }) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.addphoto),
+                                    contentDescription = "añadir imagenes",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .weight(0.5f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                    ) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            IconButton(onClick = { /*TODO*/ }) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.save),
+                                    contentDescription = "subir imagenes",
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                LazyColumn {
+                    items(selectedImageUris) { uri ->
+                        uri?.let {
+                            Card(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxSize(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
+                                onClick = {
+                                    // accion al presionar la imagen
+                                }
+                            ) {
+                                Box(modifier = Modifier.fillMaxSize()) {
+                                    AsyncImage(
+                                        model = uri,
+                                        contentDescription = null,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            // alert dialog para preguntar si quiere eliminar
+                                            selectedImageUris.remove(uri)
+                                        },
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .size(20.dp),// Align button at top end
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "eliminar imagen",
+                                            modifier = Modifier.size(20.dp),
+                                            tint = Color.Black
+                                        )
+                                    }
+
+                                }
+
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+    )
+}
+
+@Composable
 fun Filtros(onDismiss: () -> Unit) {
 
     AlertDialog(
@@ -385,22 +543,25 @@ fun MyDayContentWithActivities(
     Box(
         modifier = Modifier
             .padding(4.dp)
-            .clickable(onClick = onClick) // Hacer clic en el día
+            .clickable(onClick = onClick)
     ) {
-        Text(
-            text = dayState.date.dayOfMonth.toString(),
-            style = MaterialTheme.typography.bodyMedium
-        )
-
-        // Si tiene actividad, mostrar un punto debajo del número
         if (hasActivity) {
             Box(
                 modifier = Modifier
-                    .size(6.dp)
-                    .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
-                    .align(Alignment.BottomCenter)
+                    .size(17.dp)
+                    .background(Color.White, shape = CircleShape)
+                    .align(Alignment.Center)
+
             )
         }
+        Text(
+            text = dayState.date.dayOfMonth.toString(),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center,
+        )
+
+        // Si tiene actividad, mostrar un punto debajo del número
+
     }
 }
 
@@ -455,13 +616,26 @@ fun ActivityDetails(
 fun MapScreen() {
     val context = LocalContext.current
 
-    val puntosDeInteres = listOf(
+    val location = LatLng(43.35257675380246, -4.062506714329061) // Cambia a la ubicación deseada
+    val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(location, 10f) }
+
+    GoogleMap(
+        cameraPositionState = cameraPositionState
+    ) {
+
+
+
+
+
+    }
+
+    /*val puntosDeInteres = listOf(
         GeoPoint(43.35257675380246, -4.062506714329061), // Coordenadas 1
         GeoPoint(43.3530000, -4.0610000), // Coordenadas 2
         GeoPoint(43.3500000, -4.0650000)
-    )
+    )*/
 
-    AndroidView(
+    /*AndroidView(
         factory = {
             MapView(context).apply {
                 setTileSource(org.osmdroid.tileprovider.tilesource.TileSourceFactory.MAPNIK)
@@ -484,15 +658,15 @@ fun MapScreen() {
                 polyline.outlinePaint.pathEffect = dashEffect
                 overlays.add(polyline)  // Añadir la línea al mapa
             }
-        },
+        }
         modifier = Modifier.fillMaxSize() // El mapa se ajusta al tamaño de su contenedor
-    )
+    )*/
 }
-
+/*
 // Función para añadir un marcador en el mapa
 fun MapView.addMarker(location: GeoPoint, title: String) {
     val marker = Marker(this)
     marker.position = location
     marker.title = title
     overlays.add(marker)
-}
+}*/

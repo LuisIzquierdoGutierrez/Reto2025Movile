@@ -1,6 +1,7 @@
 package com.example.reto2025_mobile.Views
 
 import android.content.Context
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -57,6 +58,9 @@ fun LogginView(
 ) {
     var user by remember { mutableStateOf("") }
     var pass by remember { mutableStateOf("") }
+    var login by remember {
+        mutableStateOf(true)
+    }
     val context = LocalContext.current
     val loginResult by profesorLoginViewModel.loginResult.observeAsState()
     val errorMessage by profesorLoginViewModel.errorMessage.observeAsState()
@@ -134,7 +138,7 @@ fun LogginView(
                     modifier = Modifier
                         .padding(top = 16.dp)
                 )
-            } else {
+            } else if (login) {
                 errorMessage?.let {
                     Text(
                         text = it,
@@ -146,6 +150,8 @@ fun LogginView(
                 }
 
                 loginResult?.let {
+                    login = false
+                    Log.d("test","login")
                     // Aquí puedes manejar la navegación o cualquier acción después de un inicio de sesión exitoso
                     navController.navigate("home")
                 }
