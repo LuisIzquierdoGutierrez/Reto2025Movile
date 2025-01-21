@@ -35,6 +35,7 @@ import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.data.Actividad
+import com.example.reto2025_mobile.ui.theme.GreenContainer
 import java.time.LocalDate
 
 @Composable
@@ -45,6 +46,8 @@ fun HomeView(
     grupoParticipanteViewModel: GrupoParticipanteViewModel
 ) {
     val actividades: List<Actividad> by actividadViewModel.actividades.observeAsState(emptyList());
+    val hayActividades = actividades.isNotEmpty()
+
     Scaffold (
         topBar = { HomeAppBar(navController) },
         bottomBar = { BottomAppBar(navController = navController) }
@@ -56,9 +59,110 @@ fun HomeView(
             Column(modifier = Modifier
                 .fillMaxWidth()
                 ) {
+                Text(text = "Para Hoy ${LocalDate.now().toString()}",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.align(Alignment.CenterHorizontally) )
+                if(hayActividades){
+                    LazyColumn (modifier = Modifier.weight(0.3f)){
+                        items(actividades) { actividad ->
+                            if(actividad.fini == LocalDate.now().toString()){
+                                Card (modifier = Modifier
+                                    .weight(1f)
+                                    .padding(8.dp)
+                                    .fillMaxHeight(),
+                                    shape = RoundedCornerShape(12.dp, 12.dp, 12.dp, 12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer),
+                                    onClick = {
+                                        actividadViewModel.getActividadById(actividad.id)
+                                        profParticipanteViewModel.getProfesoresParticipantes()
+                                        grupoParticipanteViewModel.getGruposParticipantes()
+                                        navController.navigate("details") })
+                                {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
+                                        Column {
+                                            Text(
+                                                text = actividad.titulo,
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF000000),
+                                                textAlign = TextAlign.Start
+                                            )
+                                        }
+                                    }
+                                }
+                            }else{
 
-                Box(modifier = Modifier.weight(0.6f)){
-                    ActivityCalendarApp(navController, actividades, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel)
+                            }
+
+                        }
+                    }
+                }else{
+                    Card (modifier = Modifier
+                        .weight(1f)
+                        .padding(8.dp)
+                        .fillMaxHeight(),
+                        shape = RoundedCornerShape(12.dp, 12.dp, 12.dp, 12.dp),
+                        colors = CardDefaults.cardColors(containerColor = GreenContainer),
+                        onClick = {})
+                    {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Column {
+                                Text(
+                                    text = "No hay actividades programadas para hoy",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF000000),
+                                    textAlign = TextAlign.Start
+                                )
+                            }
+                        }
+                    }
+                }
+                LazyColumn (modifier = Modifier.weight(0.7f)){
+                    items(actividades) { actividad ->
+                        if(actividad.fini == LocalDate.now().toString()){
+                            Card (modifier = Modifier
+                                .weight(1f)
+                                .padding(8.dp)
+                                .fillMaxHeight(),
+                                shape = RoundedCornerShape(12.dp, 12.dp, 12.dp, 12.dp),
+                                colors = CardDefaults.cardColors(containerColor = GreenContainer),
+                                onClick = {
+                                    actividadViewModel.getActividadById(actividad.id)
+                                    profParticipanteViewModel.getProfesoresParticipantes()
+                                    grupoParticipanteViewModel.getGruposParticipantes()
+                                    navController.navigate("details") })
+                            {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = actividad.titulo,
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF000000),
+                                            textAlign = TextAlign.Start
+                                        )
+                                    }
+                                }
+                            }
+                        }else{
+
+                        }
+
+                    }
                 }
 
                 Spacer(modifier = Modifier.size(20.dp))
@@ -66,15 +170,15 @@ fun HomeView(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterHorizontally) )
-                LazyColumn (modifier = Modifier.weight(0.5f)){
+                LazyColumn (modifier = Modifier.weight(0.7f)){
                     items(actividades) { actividad ->
-                        if(actividad.fini >= LocalDate.now().toString() && actividad.fini <= LocalDate.now().plusDays(7).toString()){
+                        if(actividad.fini >= LocalDate.now().plusDays(1).toString() && actividad.fini <= LocalDate.now().plusDays(8).toString()){
                             Card (modifier = Modifier
                                 .weight(1f)
                                 .padding(8.dp)
                                 .fillMaxHeight(),
                                 shape = RoundedCornerShape(12.dp, 12.dp, 12.dp, 12.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
+                                colors = CardDefaults.cardColors(containerColor = GreenContainer),
                                 onClick = {
                                     actividadViewModel.getActividadById(actividad.id)
                                     profParticipanteViewModel.getProfesoresParticipantes()

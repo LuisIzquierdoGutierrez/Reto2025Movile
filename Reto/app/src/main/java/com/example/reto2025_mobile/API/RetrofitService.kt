@@ -13,7 +13,9 @@ import com.example.reto2025_mobile.data.ProfResponsable
 import com.example.reto2025_mobile.data.Profesor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -60,7 +62,11 @@ interface RetrofitService {
         @Query("password") password: String
     ): Profesor
 
-
+    @PUT("actividades/{id}")
+    suspend fun updateActividad(
+        @Path("id") id: Int?,
+        @Body actividad: Actividad
+    ): Actividad
 
 
 }

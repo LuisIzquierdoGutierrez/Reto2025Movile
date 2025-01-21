@@ -3,10 +3,6 @@ package com.example.reto2025_mobile.Views
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,24 +16,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Send
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,17 +34,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
 import com.example.reto2025_mobile.Componentes.DetailTopBar
 import com.example.reto2025_mobile.Componentes.Fotos
-import com.example.reto2025_mobile.Componentes.MapScreen
 import com.example.reto2025_mobile.Componentes.Mapa
+import com.example.reto2025_mobile.Componentes.Pic
+import com.example.reto2025_mobile.Componentes.Usuario
 import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
@@ -63,6 +51,7 @@ import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.data.Actividad
 import com.example.reto2025_mobile.data.GrupoParticipante
 import com.example.reto2025_mobile.data.ProfParticipante
+import com.example.reto2025_mobile.ui.theme.GreenContainer
 
 @Composable
 fun DetailsView(
@@ -75,9 +64,18 @@ fun DetailsView(
     val grupoParticipantes: List<GrupoParticipante> by grupoParticipanteViewModel.gruposParticipantes.observeAsState(emptyList())
     val actividad: Actividad? by actividadViewModel.actividad.observeAsState()
     var color by remember { mutableStateOf(Color(0xFFD0E8F2)) }
+    var enableUpdate by remember { mutableStateOf(false) }
+
+    for(prof in profParticipantes){
+        if(prof.actividad.id == actividad?.id && prof.profesor.uuid == Usuario.uuid){
+            enableUpdate = true
+            break
+        }
+    }
     actividad?.let {
+
         Scaffold(
-            topBar = { DetailTopBar(navController = navController, it.titulo) }
+            topBar = { DetailTopBar(navController = navController,actividadViewModel, actividad!!, enableUpdate) }
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -105,6 +103,21 @@ fun DetailsView(
                         }
 
                         LazyColumn {
+                            item {
+                                Card(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                ) {
+                                    Text(
+                                        text = it.titulo,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(8.dp)
+                                    )
+                                }
+                            }
                             item{
                                 Card(
                                     modifier = Modifier
@@ -134,7 +147,7 @@ fun DetailsView(
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                 ) {
                                     Text(
                                         text = it.descripcion ?: "",
@@ -155,14 +168,14 @@ fun DetailsView(
                                     )
                                 }
                             }
-                            item {
+                            /*item {
                                 if (it.urlFolleto != null) {
                                     val context = LocalContext.current
                                     Card(
                                         modifier = Modifier
                                             .padding(8.dp),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFB0C4DE)),
+                                        colors = CardDefaults.cardColors(containerColor = GreenContainer),
                                         onClick = {
                                             val intent = Intent(Intent.ACTION_VIEW, Uri.parse(it.urlFolleto))
                                             context.startActivity(intent)
@@ -175,14 +188,14 @@ fun DetailsView(
                                         )
                                     }
                                 }
-                            }
+                            }*/
                             item{
                                 Card(
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                 ) {
                                     Text(
                                         text = "Fecha inicio: ${it.fini}",
@@ -202,7 +215,7 @@ fun DetailsView(
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                 ) {
                                     Text(
                                         text = "Hora inicio: ${it.hini}",
@@ -222,7 +235,7 @@ fun DetailsView(
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                 ) {
                                     Text(
                                         text = "Profesor solicitante: ${it.solicitante.nombre} ${it.solicitante.apellidos}",
@@ -238,7 +251,7 @@ fun DetailsView(
                                             .padding(8.dp)
                                             .fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                        colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                     ) {
                                         Text(
                                             text = "Incidencias: ${it.incidencias}",
@@ -256,7 +269,7 @@ fun DetailsView(
                                             .padding(8.dp)
                                             .fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                        colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                     ) {
                                         trans = "Si"
                                         Text(
@@ -282,7 +295,7 @@ fun DetailsView(
                                             .padding(8.dp)
                                             .fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                        colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                     ) {
                                         aloj = "Si"
                                         Text(
@@ -307,7 +320,7 @@ fun DetailsView(
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                 ) {
                                     Text(
                                         text = "Profesores participantes: ",
@@ -332,7 +345,7 @@ fun DetailsView(
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
                                 ) {
                                     Text(
                                         text = "Grupos participantes: ",
@@ -352,6 +365,7 @@ fun DetailsView(
                                 }
                             }
                             item {
+                                var showPic by remember { mutableStateOf(false) }
                                 Column {
                                     Row(
                                         modifier = Modifier
@@ -366,11 +380,10 @@ fun DetailsView(
                                                         .fillMaxHeight()
                                                         .width(60.dp),
                                                     shape = RoundedCornerShape(12.dp),
-                                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
-                                                    onClick = {
-
-                                                    }
+                                                    colors = CardDefaults.cardColors(containerColor = GreenContainer),
+                                                    onClick = { showPic = true }
                                                 ) {
+
                                                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                                         Icon(
                                                             imageVector = ImageVector.vectorResource(R.drawable.photo),
@@ -381,12 +394,20 @@ fun DetailsView(
                                                 }
                                             }
                                         }
+                                        if(showPic) Pic(onDismiss = { showPic = false })
                                     }
                                 }
                             }
                             item {
                                 var showMap by remember { mutableStateOf(false) }
                                 var showPhoto by remember { mutableStateOf(false) }
+                                var enabledAddPhoto by remember { mutableStateOf(false) }
+
+                                for(prof in profParticipantes){
+                                    if(prof.actividad.id == it.id && prof.profesor.uuid == Usuario.uuid){
+                                        enabledAddPhoto = true
+                                    }
+                                }
 
                                 Row {
                                     Card(
@@ -394,8 +415,9 @@ fun DetailsView(
                                             .padding(8.dp)
                                             .weight(0.5f),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
-                                        onClick = { showPhoto = true }
+                                        colors = CardDefaults.cardColors(containerColor = GreenContainer),
+                                        onClick = { showPhoto = true },
+                                        enabled = enabledAddPhoto
 
                                     ) {
                                         if (showPhoto) Fotos(onDismiss = { showPhoto = false })
@@ -409,7 +431,7 @@ fun DetailsView(
                                                 .padding(8.dp)
                                                 .weight(0.5f),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2)),
+                                    colors = CardDefaults.cardColors(containerColor = GreenContainer),
                                     onClick = { showMap = true }
 
                                     ) {
