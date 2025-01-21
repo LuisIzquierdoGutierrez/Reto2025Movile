@@ -48,8 +48,11 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.reto2025_mobile.API.RetrofitServiceFactory
+import com.example.reto2025_mobile.Componentes.Usuario
 import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ProfesorLoginViewModel
+import com.example.reto2025_mobile.data.Profesor
+import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -161,6 +164,19 @@ fun LogginView(
 
                 loginResult?.let {
                     login = false
+                    val profesorJson = Gson().toJson(loginResult)
+                    val user: Profesor = Gson().fromJson(profesorJson, Profesor::class.java)
+                    Usuario.nombre = user.nombre
+                    Usuario.apellidos = user.apellidos
+                    Usuario.uuid = user.uuid
+                    Usuario.correo = user.correo
+                    Usuario.dni = user.dni
+                    Usuario.rol = user.rol
+                    Usuario.activo = user.activo
+                    Usuario.depart = user.depart
+                    Usuario.esJefeDep = user.esJefeDep
+                    Usuario.password = user.password
+                    Usuario.urlFoto = user.urlFoto
                     navController.navigate("home")
                 }
             }
