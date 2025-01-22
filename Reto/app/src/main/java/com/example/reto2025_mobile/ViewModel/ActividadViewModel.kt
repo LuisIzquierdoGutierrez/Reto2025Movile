@@ -28,7 +28,32 @@ class ActividadViewModel:ViewModel() {
                 val actividadesList = service.getActividades()
                 _actividades.value = actividadesList
                 Log.d("Actividades", "Received list: $actividadesList")
-                _actividades.value = actividadesList
+            } catch (e: Exception) {
+                Log.d("Actividades", "$e")
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun getActividadById(id: Int?) {
+        viewModelScope.launch {
+            try {
+                _actividad.value = service.getActividadById(id!!)// las dos exclamaciones son para que no sea nulo
+                Log.d("Actividades", "Received list: $actividad")
+            } catch (e: Exception) {
+                Log.d("Actividades", "$e")
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun updateActividad(actividad: Actividad) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                service.updateActividad(actividad.id!!, actividad)
+                _actividad.postValue(actividad)
+
+                Log.d("Actividades", "Updated actividad: $actividad")
             } catch (e: Exception) {
                 Log.d("Actividades", "$e")
                 e.printStackTrace()

@@ -36,7 +36,7 @@ import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.data.Actividad
-import com.example.reto2025_mobile.ui.theme.GreenContainer
+import com.example.reto2025_mobile.ui.theme.BlueContainer
 
 
 @Composable
@@ -65,7 +65,7 @@ fun ActividadesView(
                                 .padding(8.dp)
                                 .fillMaxHeight(),
                             shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = GreenContainer),
+                            colors = CardDefaults.cardColors(containerColor = BlueContainer),
                             onClick = {
                                 actividadViewModel.getActividadById(actividad.id)
                                 profParticipanteViewModel.getProfesoresParticipantes()

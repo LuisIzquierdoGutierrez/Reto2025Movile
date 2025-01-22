@@ -52,6 +52,7 @@ import com.example.reto2025_mobile.Componentes.Usuario
 import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ProfesorLoginViewModel
 import com.example.reto2025_mobile.data.Profesor
+import com.example.reto2025_mobile.ui.theme.GreenBar
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

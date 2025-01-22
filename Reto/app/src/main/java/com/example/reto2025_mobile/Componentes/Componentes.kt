@@ -1,12 +1,18 @@
 package com.example.reto2025_mobile.Componentes
 
+import android.content.ContentValues
 import android.net.Uri
+import android.os.Environment
+import android.provider.MediaStore
+import android.widget.Toast
+
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 //import androidx.compose.foundation.layout.FlowColumnScopeInstance.align
@@ -26,6 +32,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -59,6 +66,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.core.content.FileProvider
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import coil.compose.AsyncImage
@@ -67,10 +76,14 @@ import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
+import com.example.reto2025_mobile.Views.DetailsView
 import com.example.reto2025_mobile.data.Actividad
+import com.example.reto2025_mobile.data.ProfParticipante
 import com.example.reto2025_mobile.data.Profesor
 import com.example.reto2025_mobile.ui.theme.GreenBar
-import com.example.reto2025_mobile.ui.theme.GreenContainer
+import com.example.reto2025_mobile.ui.theme.BlueContainer
+import com.example.reto2025_mobile.data.Actividad
+import com.example.reto2025_mobile.data.Profesor
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -78,7 +91,11 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import io.github.boguszpawlowski.composecalendar.Calendar
 import io.github.boguszpawlowski.composecalendar.day.DayState
 import io.github.boguszpawlowski.composecalendar.rememberCalendarState
+import java.io.File
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+
+//Top bar de la pantalla de Detalles de una actividad
 
 // Top Bar
 
@@ -93,7 +110,6 @@ fun DetailTopBar(
     actividad: Actividad,
     enableUpdate: Boolean
 ) {
-    var showIncidencia by remember { mutableStateOf(false) }
 
     TopAppBar(
         title = {
@@ -107,7 +123,7 @@ fun DetailTopBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = {navController.popBackStack()}) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
         },
@@ -146,7 +162,7 @@ fun ActividadesTopAppBar(navController: NavController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = {navController.popBackStack()}) {
+            IconButton(onClick = { navController.popBackStack() }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
         },
@@ -162,7 +178,9 @@ fun ActividadesTopAppBar(navController: NavController) {
                             imageVector = ImageVector.vectorResource(R.drawable.filter),
                             contentDescription = "Filtros"
                         )
-                        if(expanded){
+
+                        if (expanded) {
+
                             Filtros(onDismiss = { expanded = false })
                         }
                     }
@@ -187,7 +205,7 @@ fun PerfilTopAppBar(navController: NavController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = {navController.popBackStack()}) {
+            IconButton(onClick = { navController.navigate("home") }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
         },
@@ -228,13 +246,14 @@ fun HomeAppBar(navController: NavController) {
                         imageVector = ImageVector.vectorResource(R.drawable.logout),
                         contentDescription = "cerrar sesion"
                     )
-                    if(showlogout){
+                    if (showlogout) {
                         AlertDialog(
-                            onDismissRequest = {  },
+                            onDismissRequest = { },
                             confirmButton = {
                                 Button(onClick = {
                                     navController.navigate("loggin")
-                                    showlogout = false })
+                                    showlogout = false
+                                })
                                 {
                                     Text("Aceptar")
                                 }
@@ -271,6 +290,7 @@ fun AppBar(navController: NavController) {
             )
         },
         navigationIcon = {
+
             IconButton(onClick = {navController.popBackStack()}) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
@@ -285,7 +305,7 @@ fun AppBar(navController: NavController) {
 // Bottom Bar con navegacion entre pantallas
 
 @Composable
-fun currentRoute(navController: NavController) :String? =
+fun currentRoute(navController: NavController): String? =
     navController.currentBackStackEntryAsState().value?.destination?.route
 
 @Composable
@@ -509,6 +529,382 @@ fun Fotos(onDismiss: () -> Unit) {
 }
 
 @Composable
+fun BottomDetailBar(actividad: Actividad, profParticipantes: List<ProfParticipante>) {
+    Row(
+        modifier = Modifier
+            .background(GreenBar),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+
+        var showMap by remember { mutableStateOf(false) }
+        var showPhoto by remember { mutableStateOf(false) }
+        var enabledAddPhoto by remember { mutableStateOf(false) }
+
+        for (prof in profParticipantes) {
+            if (prof.actividad.id == actividad.id && prof.profesor.uuid == Usuario.uuid) {
+                enabledAddPhoto = true
+            }
+        }
+
+        Row {
+            Card(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .weight(0.5f),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF9ACB63)),
+                onClick = { showPhoto = true },
+                enabled = enabledAddPhoto
+
+            ) {
+                if (showPhoto) Fotos(onDismiss = { showPhoto = false })
+                Row {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.addphoto),
+                        contentDescription = "photo",
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Text(
+                        text = "Añadir imagenes",
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+            Card(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .weight(0.5f),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFF9ACB63)),
+                onClick = { showMap = true }
+
+            ) {
+                if (showMap) Mapa(onDismiss = { showMap = false })
+                Row {
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = "Ubicacion",
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Text(
+                        text = "Ubicacion",
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                }
+            }
+        }
+
+    }
+}
+
+// Cuadros de dialogo para filtrar actividades y añadir incidencias
+
+@Composable
+fun Incidencias(
+    onDismiss: () -> Unit,
+    actividadViewModel: ActividadViewModel,
+    actividad: Actividad
+) {
+    var inci by remember { mutableStateOf(actividad.incidencias ?: "") }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(
+                onClick = {
+                    val updateActividad = actividad.copy(incidencias = inci)
+                    actividadViewModel.updateActividad(updateActividad)
+                    onDismiss()
+                }
+            ) {
+                Text("Aceptar")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        },
+        title = {
+            Text("Añadir incidencias")
+        },
+        text = {
+            TextField(
+                value = inci!!,
+                onValueChange = { inci = it },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+            )
+
+        }
+    )
+}
+
+@Composable
+fun Mapa(onDismiss: () -> Unit) {
+    /*Dialog( onDismissRequest = onDismiss ){
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Transparent)
+        ) {
+            MapScreen()
+        }
+    }*/
+    AlertDialog(
+        modifier = Modifier
+            .fillMaxWidth()
+            .size(400.dp),
+        onDismissRequest = onDismiss,
+        confirmButton = {
+            Button(onClick = onDismiss) {
+                Text("Aceptar")
+            }
+        },
+        text = {
+            Column {
+                Box(modifier = Modifier.size(300.dp)) {
+                    MapScreen()
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun Pics(onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(500.dp)
+                .background(Color.Transparent)
+        ) {
+            Icon(
+                modifier = Modifier.fillMaxSize(),
+                imageVector = ImageVector.vectorResource(R.drawable.photo),
+                contentDescription = "foto"
+            )
+            /*AsyncImage(
+                model = imageUrl,
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop
+            )*/
+        }
+    }
+}
+/*
+@Composable
+fun Pic(onDismiss: () -> Unit) {
+    AlertDialog(
+        modifier = Modifier
+            .fillMaxWidth()
+            .size(400.dp),
+        onDismissRequest = onDismiss,
+        confirmButton = {},
+        text = {
+            Box(modifier = Modifier.fillMaxSize()) {
+                Icon(
+                    modifier = Modifier.fillMaxSize(),
+                    imageVector = ImageVector.vectorResource(R.drawable.photo),
+                    contentDescription = "foto"
+                )
+            }
+        }
+    )
+}*/
+
+@Composable
+fun Fotos(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    var showOptions by remember { mutableStateOf(false) }
+    val selectedImageUris = remember { mutableStateListOf<Uri?>() }
+    val multiplePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+        onResult = { uris ->
+            uris.forEach { uri ->
+                uri?.let { selectedImageUris.add(it) }
+            }
+        }
+    )
+    var photoUri by remember { mutableStateOf<Uri?>(null) }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { success: Boolean ->
+            if (success) {
+                // Guardar la imagen en la galería
+                val contentValues = ContentValues().apply {
+                    put(MediaStore.Images.Media.DISPLAY_NAME, "IMG_${System.currentTimeMillis()}.jpg")
+                    put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+                    put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES)
+                }
+                val resolver = context.contentResolver
+                resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)?.let { galleryUri ->
+                    resolver.openOutputStream(galleryUri)?.use { outputStream ->
+                        photoUri?.let {
+                            resolver.openInputStream(photoUri!!)?.use { inputStream ->
+                                inputStream.copyTo(outputStream)
+                            }
+                        }
+                    }
+                }
+                // Añadir la URI de la imagen a las imágenes seleccionadas
+                selectedImageUris.add(photoUri)
+            }
+        }
+    )
+
+
+    AlertDialog(
+        modifier = Modifier
+            .fillMaxWidth(),
+        onDismissRequest = onDismiss,
+        confirmButton = {
+        },
+        text = {
+            Column {
+                if (selectedImageUris.isNotEmpty()) {
+                    Box(modifier = Modifier.weight(0.8f)) {
+                        LazyColumn {
+                            items(selectedImageUris) { uri ->
+                                uri?.let {
+                                    Card(
+                                        modifier = Modifier
+                                            .padding(8.dp)
+                                            .fillMaxSize(),
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(containerColor = BlueContainer),
+                                        onClick = {
+                                            // accion al presionar la imagen
+                                        }
+                                    ) {
+                                        Box(modifier = Modifier.fillMaxSize()) {
+                                            AsyncImage(
+                                                model = uri,
+                                                contentDescription = null,
+                                                modifier = Modifier.fillMaxWidth(),
+                                                contentScale = ContentScale.Crop
+                                            )
+                                            IconButton(
+                                                onClick = {
+                                                    // alert dialog para preguntar si quiere eliminar
+                                                    selectedImageUris.remove(uri)
+                                                },
+                                                modifier = Modifier
+                                                    .align(Alignment.TopEnd)
+                                                    .size(20.dp),// Align button at top end
+                                            ) {
+                                                Icon(
+                                                    imageVector = Icons.Default.Close,
+                                                    contentDescription = "eliminar imagen",
+                                                    modifier = Modifier.size(20.dp),
+                                                    tint = Color.Black
+                                                )
+                                            }
+
+                                        }
+
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .weight(0.5f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = BlueContainer),
+                        onClick = {
+                            // asi se cierra la camara
+                            var tempPhotoUri = FileProvider.getUriForFile(
+                                context,
+                                "${context.packageName}.provider",
+                                File(context.cacheDir, "temp_image.jpg")
+                            )
+                            photoUri = tempPhotoUri
+                            cameraLauncher.launch(tempPhotoUri)
+                        }
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.addphoto),
+                                    contentDescription = "añadir desde camara",
+                                    modifier = Modifier.size(32.dp)
+                                )
+
+                        }
+                    }
+
+                    Card(
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .weight(0.5f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = BlueContainer),
+                        onClick = {
+                            multiplePhotoPickerLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                            showOptions = false
+                        }
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.image_search),
+                                    contentDescription = "añadir desde galeria",
+                                    modifier = Modifier.size(32.dp)
+                                )
+
+                        }
+                    }
+
+                    if (selectedImageUris.isNotEmpty()) {
+                        Card(
+                            modifier = Modifier
+                                .padding(8.dp)
+                                .weight(0.5f),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = CardDefaults.cardColors(containerColor = BlueContainer),
+                            onClick = {
+                                // subir imagenes
+                            }
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                    Icon(
+                                        imageVector = ImageVector.vectorResource(R.drawable.save),
+                                        contentDescription = "subir imagenes",
+                                        modifier = Modifier.size(32.dp)
+                                    )
+
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+    )
+}
+
+@Composable
 fun Filtros(onDismiss: () -> Unit) {
 
     AlertDialog(
@@ -525,10 +921,10 @@ fun Filtros(onDismiss: () -> Unit) {
         },*/
         text = {
             Column {
-                TextField(value = "", onValueChange = {  }, label = { Text("Nombre") })
-                TextField(value = "", onValueChange = {  }, label = { Text("Fecha") })
-                TextField(value = "", onValueChange = {  }, label = { Text("Responsable") })
-                TextField(value = "", onValueChange = {  }, label = { Text("Curso") })
+                TextField(value = "", onValueChange = { }, label = { Text("Nombre") })
+                TextField(value = "", onValueChange = { }, label = { Text("Fecha") })
+                TextField(value = "", onValueChange = { }, label = { Text("Responsable") })
+                TextField(value = "", onValueChange = { }, label = { Text("Curso") })
             }
         }
     )
@@ -557,13 +953,19 @@ fun ActivityCalendarApp(
     // Estado del día seleccionado
     var selectedDate by remember { mutableStateOf<LocalDate?>(null) }
 
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(15.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(15.dp)
+    ) {
+
         // Mostrar el calendario
-        Box(modifier = Modifier
-            .background(GreenContainer, shape = RoundedCornerShape(12.dp))
-            .padding(5.dp)){
+        Box(
+            modifier = Modifier
+                .background(BlueContainer, shape = RoundedCornerShape(12.dp))
+                .padding(5.dp)
+        ) {
+
             Calendar(
                 calendarState = calendarState,
                 showAdjacentMonths = true,
@@ -573,7 +975,9 @@ fun ActivityCalendarApp(
                         dayState,
                         activities,
                         onClick = {
+
                             selectedDate = dayState.date // Al hacer click en un día, se selecciona el día
+
                         }
                     )
                 }
@@ -583,6 +987,7 @@ fun ActivityCalendarApp(
 
         // Mostrar información sobre el día seleccionado
         selectedDate?.let { date ->
+
             ActivityDetails(
                 navController = navController,
                 date = date,
@@ -608,23 +1013,26 @@ fun MyDayContentWithActivities(
     Box(
         modifier = Modifier
             .padding(4.dp)
-            .clickable(onClick = onClick)
+            .size(30.dp)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
-        if(isToday){
+        if (isToday) {
             if (hasActivity) {
                 Box(
                     modifier = Modifier
-                        .size(17.dp)
+                        .size(25.dp)
                         .background(Color.White, shape = CircleShape)
-                        .align(Alignment.Center)
 
                 )
-            }else{
+            } else {
+
                 Box(
                     modifier = Modifier
                         .size(25.dp)
                         .background(Color.Transparent, shape = CircleShape)
                         .border(0.5.dp, Color.Black, shape = CircleShape)
+
                         .align(Alignment.Center)
 
                 )
@@ -635,7 +1043,9 @@ fun MyDayContentWithActivities(
                     modifier = Modifier
                         .size(25.dp)
                         .background(Color.White, shape = CircleShape)
+
                         .align(Alignment.Center)
+
 
                 )
             }
@@ -644,12 +1054,12 @@ fun MyDayContentWithActivities(
         Text(
             text = dayState.date.dayOfMonth.toString(),
             style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Right,
-            color = if (isToday) Color.Red else Color.Black // Cambia el color del texto si es el día de hoy
+
+            textAlign = TextAlign.Center,
+            color = if (isToday) Color.Red else Color.Black,
+            modifier = Modifier.align(Alignment.Center)
 
         )
-
-        // Si tiene actividad, mostrar un punto debajo del número
 
     }
 }
@@ -663,35 +1073,54 @@ fun ActivityDetails(
     profParticipanteViewModel: ProfParticipanteViewModel,
     grupoParticipanteViewModel: GrupoParticipanteViewModel
 ) {
-    Card (modifier = Modifier
-        .padding(5.dp)
-        .fillMaxSize()
-        .then(
-            if (activity != null) Modifier.clickable {
-                actividadViewModel.getActividadById(activity.id)
-                profParticipanteViewModel.getProfesoresParticipantes()
-                grupoParticipanteViewModel.getGruposParticipantes()
-                navController.navigate("details")
-            } else Modifier
-        ),
+    Card(
+        modifier = Modifier
+            .padding(5.dp)
+            .fillMaxWidth()
+            .then(
+                if (activity != null) Modifier.clickable {
+                    actividadViewModel.getActividadById(activity.id)
+                    profParticipanteViewModel.getProfesoresParticipantes()
+                    grupoParticipanteViewModel.getGruposParticipantes()
+                    navController.navigate("details")
+                } else Modifier
+            ),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = GreenContainer),
+        colors = CardDefaults.cardColors(containerColor = BlueContainer),
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(10.dp)
+                .fillMaxWidth(),
+            contentAlignment = Alignment.Center
         ) {
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .padding(10.dp),
-            contentAlignment = Alignment.Center) {
-            Column (modifier = Modifier
-                .fillMaxSize()) {
+            Column {
                 activity?.let {
-                    Text(text = "Fecha: ${date.dayOfMonth}-${date.monthValue}-${date.year}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Fecha: ${date.dayOfMonth}-${date.monthValue}-${date.year}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Título: ${it.titulo}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Título: ${it.titulo}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     //Text(text = "Horario: ${it.time}")
                 } ?: run {
-                    Text(text = "Fecha: ${date.dayOfMonth}-${date.monthValue}-${date.year}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Fecha: ${date.dayOfMonth}-${date.monthValue}-${date.year}",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = "Actividad: No hay actividad programada", fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Actividad: No hay actividad programada",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+
                 }
             }
         }
@@ -706,7 +1135,9 @@ fun MapScreen() {
     val context = LocalContext.current
 
     val location = LatLng(43.35257675380246, -4.062506714329061) // Cambia a la ubicación deseada
+
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(location, 10f) }
+
 
     GoogleMap(
         cameraPositionState = cameraPositionState
@@ -714,4 +1145,10 @@ fun MapScreen() {
 
     }
 
+}
+
+fun formatFecha(fecha: String): String {
+    val date = LocalDate.parse(fecha)
+    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+    return date.format(formatter)
 }

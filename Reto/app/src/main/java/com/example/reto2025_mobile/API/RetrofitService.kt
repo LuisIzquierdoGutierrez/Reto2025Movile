@@ -53,6 +53,12 @@ interface RetrofitService {
     @GET("grupos")
     suspend fun getGrupos(): List<Grupo>
 
+    @GET("fotos/actividad/{id}")
+    suspend fun getFotosByActividadId(@Path("id") id: Int): List<Foto>
+
+    @GET("fotos/{idActividad}/foto")
+    suspend fun getFotoActividad(@Path("idActividad") idActividad: Int, @Query("id") id: Int): retrofit2.Response<okhttp3.ResponseBody>
+
     @GET("fotos")
     suspend fun getFotos(): List<Foto>
 
@@ -68,14 +74,22 @@ interface RetrofitService {
         @Body actividad: Actividad
     ): Actividad
 
+    @PUT("gruposParticipantes/{id}")
+    suspend fun updateGrupoParticipante(
+        @Path("id") id: Int?,
+        @Body grupoParticipante: GrupoParticipante
+    ): GrupoParticipante
+
 
 }
 
 object RetrofitServiceFactory {
     fun makeRetrofitService(): RetrofitService {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.22.68:8080/acex/")
-            //.baseUrl("http://192.168.1.131:8080/acex/")
+
+            //.baseUrl("http://10.0.22.68:8080/acex/")
+            .baseUrl("http://192.168.1.138:8080/acex/")
+
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(RetrofitService::class.java)
     }

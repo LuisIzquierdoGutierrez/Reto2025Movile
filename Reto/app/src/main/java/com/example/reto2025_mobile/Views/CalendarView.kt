@@ -49,9 +49,13 @@ fun CalendarView(
             ) {
                 // Asegúrate de que las actividades no sean nulas antes de pasarlas
                 if (actividades.isNotEmpty()) {
-                    ActivityCalendarApp(navController, actividades, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel)
-                } else {
-                    Text("No hay actividades disponibles", textAlign = TextAlign.Center) // Centra el texto
+                    ActivityCalendarApp(
+                        navController,
+                        actividades,
+                        actividadViewModel,
+                        profParticipanteViewModel,
+                        grupoParticipanteViewModel
+                    )
                 }
             }
         }
