@@ -2,9 +2,9 @@ package com.example.reto2025_mobile.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val GreenBar = Color(0xFFB2DF7A)
+val BlueContainer = Color(0xFFD0E8F2)
+val GreyBack = Color.LightGray
 
 val Purple40 = Color(0xFF6650a4)
 val PurpleGrey40 = Color(0xFF625b71)
