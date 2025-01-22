@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -59,7 +60,164 @@ fun HomeView(
             Column(modifier = Modifier
                 .fillMaxWidth()
                 ) {
+<<<<<<< Updated upstream
                 Text(text = "Para Hoy ${LocalDate.now().toString()}",
+=======
+
+                    LazyRow {
+                        items(actividades) { actividad ->
+
+                            // Cargar las fotos cuando el ID de la actividad cambie
+                            LaunchedEffect(actividad.id) {
+                                fotoViewModel.getFotos()
+                            }
+                            // Observar los datos de las fotos desde el ViewModel
+                            val fotos by fotoViewModel.fotos.observeAsState(emptyList())
+
+
+                            if (fotos.isNotEmpty()) {
+
+                                LaunchedEffect(actividad.id) {
+                                    fotoViewModel.getFotoActividad(11,2)
+                                }
+
+                                Card(
+                                    modifier = Modifier
+                                        .padding(3.dp)
+                                        .size(70.dp),
+                                    shape = CircleShape,
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer),
+                                    onClick = {
+                                        selectedFotos = fotos
+                                        selectedIndex = 0
+                                        showPic = true
+                                    }
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                       /* Image(
+                                            painter = rememberAsyncImagePainter(
+                                                model = fotos[0].urlFoto,
+                                                placeholder = painterResource(id = 1),
+                                                error = painterResource(id = R.drawable.logo)
+                                            ),
+                                            contentDescription = "Imagen de actividad",
+                                            modifier = Modifier
+                                                .size(70.dp)
+                                                .clip(CircleShape)
+                                        )*/
+                                    }
+                                }
+                            } else {
+                                // Mostrar un círculo vacío si no hay fotos
+                                Card(
+                                    modifier = Modifier
+                                        .padding(3.dp)
+                                        .size(70.dp),
+                                    shape = CircleShape,
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
+                                ) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.AccountCircle,
+                                            contentDescription = "No hay fotos",
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                if (showPic) {
+                    Dialog(onDismissRequest = { showPic = false }) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black)
+                                .clickable { showPic = false },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            selectedFotos?.let { fotos ->
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Image(
+                                        painter = rememberAsyncImagePainter(model = fotos[selectedIndex].urlFoto),
+                                        contentDescription = "Full screen photo",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .weight(1f)
+                                            .padding(16.dp)
+                                    )
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        if (selectedIndex > 0) {
+                                            Button(onClick = {
+                                                selectedIndex -= 1
+                                            }) {
+                                                Text(text = "Anterior")
+                                            }
+                                        }
+                                        if (selectedIndex < fotos.size - 1) {
+                                            Button(onClick = {
+                                                selectedIndex += 1
+                                            }) {
+                                                Text(text = "Siguiente")
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+
+                Text(
+                    text = "Bienvenido/a  ${Usuario.nombre}",
+                    fontSize = 27.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+                Card(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFD0E8F2))
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Perfil",
+                            modifier = Modifier.size(100.dp),
+                            tint = Color.Gray
+                        )
+                    }
+                }
+
+
+                Spacer(modifier = Modifier.size(20.dp))
+
+                Text(
+                    text = "Actividades Próximas",
+>>>>>>> Stashed changes
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.align(Alignment.CenterHorizontally) )

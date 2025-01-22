@@ -53,6 +53,8 @@ fun CalendarView(
                 } else {
                     Text("No hay actividades disponibles", textAlign = TextAlign.Center) // Centra el texto
                 }
+
+
             }
         }
         BackHandler {

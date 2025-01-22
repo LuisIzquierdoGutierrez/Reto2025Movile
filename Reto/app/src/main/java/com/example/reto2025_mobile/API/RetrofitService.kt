@@ -75,7 +75,11 @@ object RetrofitServiceFactory {
     fun makeRetrofitService(): RetrofitService {
         return Retrofit.Builder()
             .baseUrl("http://10.0.22.68:8080/acex/")
+<<<<<<< Updated upstream
             //.baseUrl("http://192.168.1.131:8080/acex/")
+=======
+            //.baseUrl("http://192.168.1.138:8080/acex/")
+>>>>>>> Stashed changes
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(RetrofitService::class.java)
     }

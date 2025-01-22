@@ -1,8 +1,13 @@
 package com.example.reto2025_mobile.Views
 
+<<<<<<< Updated upstream
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.BackHandler
+=======
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.border
+>>>>>>> Stashed changes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,8 +39,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+<<<<<<< Updated upstream
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
+=======
+import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.TextStyle
+>>>>>>> Stashed changes
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -75,7 +85,18 @@ fun DetailsView(
     actividad?.let {
 
         Scaffold(
+<<<<<<< Updated upstream
             topBar = { DetailTopBar(navController = navController,actividadViewModel, actividad!!, enableUpdate) }
+=======
+            topBar = {
+                DetailTopBar(
+                    navController = navController
+                )
+            },
+            bottomBar = {
+                BottomDetailBar(actividad = actividad!!, profParticipantes = profParticipantes)
+            }
+>>>>>>> Stashed changes
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -259,6 +280,15 @@ fun DetailsView(
                                             modifier = Modifier.padding(8.dp)
                                         )
                                     }
+<<<<<<< Updated upstream
+=======
+
+                                    if (showIncidencia) {
+
+                                    }
+
+
+>>>>>>> Stashed changes
                                 }
                             }
                             item{
@@ -340,6 +370,7 @@ fun DetailsView(
                                 }
                             }
                             item {
+
                                 Card(
                                     modifier = Modifier
                                         .padding(8.dp)
@@ -364,6 +395,7 @@ fun DetailsView(
 
                                 }
                             }
+<<<<<<< Updated upstream
                             item {
                                 var showPic by remember { mutableStateOf(false) }
                                 Column {
@@ -443,6 +475,9 @@ fun DetailsView(
                                 }
                                 }
                             }
+=======
+
+>>>>>>> Stashed changes
                         }
                     }
                     Box(modifier = Modifier.weight(0.5f)) {

@@ -9,6 +9,8 @@ import com.example.reto2025_mobile.data.Foto
 import kotlinx.coroutines.launch
 
 class FotoViewModel: ViewModel() {
+    private val _foto = MutableLiveData<Response<ResponseBody>>()
+    val foto: LiveData<Response<ResponseBody>> = _foto
     private val _fotos = MutableLiveData<List<Foto>>()
     val fotos: LiveData<List<Foto>> = _fotos
 
