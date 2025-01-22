@@ -2,6 +2,8 @@ package com.example.reto2025_mobile.Views
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,6 +40,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -460,7 +463,6 @@ fun DetailsView(
                                 }
                             }
                             item {
-
                                 Card(
                                     modifier = Modifier
                                         .padding(8.dp)
@@ -561,7 +563,6 @@ fun DetailsView(
 
                                 }
                             }
-
                         }
                     }
                     Box(modifier = Modifier.weight(0.5f)) {

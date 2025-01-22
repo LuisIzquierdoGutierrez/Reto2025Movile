@@ -57,8 +57,6 @@ fun CalendarView(
                         grupoParticipanteViewModel
                     )
                 }
-
-
             }
         }
         BackHandler {

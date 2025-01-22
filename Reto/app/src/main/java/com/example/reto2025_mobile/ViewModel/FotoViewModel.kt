@@ -11,8 +11,6 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 
 class FotoViewModel: ViewModel() {
-    private val _foto = MutableLiveData<Response<ResponseBody>>()
-    val foto: LiveData<Response<ResponseBody>> = _foto
     private val _fotos = MutableLiveData<List<Foto>>()
     val fotos: LiveData<List<Foto>> = _fotos
 
