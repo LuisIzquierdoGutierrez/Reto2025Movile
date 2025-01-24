@@ -5,5 +5,5 @@ data class GrupoParticipante(
     val actividades: Actividad,
     val grupo: Grupo,
     val numParticipantes: Int,
-    val comentarios: String?
+    val comentario: String?
 )

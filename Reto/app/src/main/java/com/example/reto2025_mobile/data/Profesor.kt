@@ -12,5 +12,4 @@ data class Profesor(
     val urlFoto: String?,
     val esJefeDep: Boolean?,
     val depart: Departamento
-
 )

@@ -1,13 +1,7 @@
 package com.example.reto2025_mobile.Views
 
-<<<<<<< Updated upstream
-import android.content.Intent
-import android.net.Uri
-import androidx.activity.compose.BackHandler
-=======
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
->>>>>>> Stashed changes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -22,12 +16,19 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,21 +40,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-<<<<<<< Updated upstream
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.vectorResource
-=======
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
->>>>>>> Stashed changes
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.reto2025_mobile.Componentes.BottomDetailBar
 import com.example.reto2025_mobile.Componentes.DetailTopBar
-import com.example.reto2025_mobile.Componentes.Fotos
-import com.example.reto2025_mobile.Componentes.Mapa
-import com.example.reto2025_mobile.Componentes.Pic
+import com.example.reto2025_mobile.Componentes.Pics
+import com.example.reto2025_mobile.Componentes.SelectColor
 import com.example.reto2025_mobile.Componentes.Usuario
+import com.example.reto2025_mobile.Componentes.formatFecha
 import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
@@ -61,7 +60,8 @@ import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.data.Actividad
 import com.example.reto2025_mobile.data.GrupoParticipante
 import com.example.reto2025_mobile.data.ProfParticipante
-import com.example.reto2025_mobile.ui.theme.GreenContainer
+import com.example.reto2025_mobile.ui.theme.GreenBar
+import com.example.reto2025_mobile.ui.theme.BlueContainer
 
 @Composable
 fun DetailsView(
@@ -70,14 +70,19 @@ fun DetailsView(
     profParticipanteViewModel: ProfParticipanteViewModel,
     grupoParticipanteViewModel: GrupoParticipanteViewModel
 ) {
-    val profParticipantes: List<ProfParticipante> by profParticipanteViewModel.profesoresParticipantes.observeAsState(emptyList())
-    val grupoParticipantes: List<GrupoParticipante> by grupoParticipanteViewModel.gruposParticipantes.observeAsState(emptyList())
+    val profParticipantes: List<ProfParticipante> by profParticipanteViewModel.profesoresParticipantes.observeAsState(
+        emptyList()
+    )
+    val grupoParticipantes: List<GrupoParticipante> by grupoParticipanteViewModel.gruposParticipantes.observeAsState(
+        emptyList()
+    )
     val actividad: Actividad? by actividadViewModel.actividad.observeAsState()
-    var color by remember { mutableStateOf(Color(0xFFD0E8F2)) }
     var enableUpdate by remember { mutableStateOf(false) }
+    // datos de la actividad
+    var incidencias by remember { mutableStateOf(actividad?.incidencias ?: "") }
 
-    for(prof in profParticipantes){
-        if(prof.actividad.id == actividad?.id && prof.profesor.uuid == Usuario.uuid){
+    for (prof in profParticipantes) {
+        if (prof.actividad.id == actividad?.id && prof.profesor.uuid == Usuario.uuid) {
             enableUpdate = true
             break
         }
@@ -85,18 +90,12 @@ fun DetailsView(
     actividad?.let {
 
         Scaffold(
-<<<<<<< Updated upstream
-            topBar = { DetailTopBar(navController = navController,actividadViewModel, actividad!!, enableUpdate) }
-=======
             topBar = {
-                DetailTopBar(
-                    navController = navController
-                )
+                DetailTopBar(navController = navController)
             },
             bottomBar = {
                 BottomDetailBar(actividad = actividad!!, profParticipantes = profParticipantes)
             }
->>>>>>> Stashed changes
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -109,28 +108,57 @@ fun DetailsView(
                         .height(1000.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
-                        if(it.estado == "SOLICITADA"){
-                            color = Color(0xFFD0E8F2)
-                        }else if(it.estado == "DENEGADA"){
-                            color = Color(0xFFCD5C5C)
-                        }else if(it.estado == "APROBADA"){
-                            color = Color(0xFFADD8E6)
-                        }else if(it.estado == "REALIZADA"){
-                            color = Color(0xFF90EE90)
-                        }else if(it.estado == "REALIZANDOSE"){
-                            color = Color(0xFFFFFFE0)
-                        }else if(it.estado == "CANCELADA"){
-                            color = Color(0xFFD3D3D3)
-                        }
+
+                        val color = SelectColor(actividad!!.estado)
 
                         LazyColumn {
+                            item {
+                                var showPic by remember { mutableStateOf(false) }
+                                Column {
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(100.dp)
+                                    ) {
+                                        LazyRow {
+                                            items(10) {
+                                                Card(
+                                                    modifier = Modifier
+                                                        .padding(3.dp)
+                                                        .fillMaxHeight()
+                                                        .width(60.dp),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                    colors = CardDefaults.cardColors(containerColor = BlueContainer),
+                                                    onClick = { showPic = true }
+                                                ) {
+
+                                                    Box(
+                                                        modifier = Modifier.fillMaxSize(),
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = ImageVector.vectorResource(
+                                                                R.drawable.photo
+                                                            ),
+                                                            contentDescription = "añadir imagenes",
+                                                            modifier = Modifier.size(32.dp)
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        if (showPic) Pics(onDismiss = { showPic = false })
+                                    }
+                                }
+                            }
+
                             item {
                                 Card(
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                 ) {
                                     Text(
                                         text = it.titulo,
@@ -139,7 +167,7 @@ fun DetailsView(
                                     )
                                 }
                             }
-                            item{
+                            item {
                                 Card(
                                     modifier = Modifier
                                         .padding(8.dp)
@@ -168,7 +196,7 @@ fun DetailsView(
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                 ) {
                                     Text(
                                         text = it.descripcion ?: "",
@@ -210,33 +238,36 @@ fun DetailsView(
                                     }
                                 }
                             }*/
-                            item{
+                            item {
+                                val fechaInicio = formatFecha(it.fini)
+                                val fechaFin = formatFecha(it.ffin)
+
                                 Card(
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                 ) {
                                     Text(
-                                        text = "Fecha inicio: ${it.fini}",
+                                        text = "Fecha inicio: ${fechaInicio}",
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(8.dp)
                                     )
                                     Text(
-                                        text = "Fecha finalizacion ${it.ffin}",
+                                        text = "Fecha finalizacion ${fechaFin}",
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(8.dp)
                                     )
                                 }
                             }
-                            item{
+                            item {
                                 Card(
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                 ) {
                                     Text(
                                         text = "Hora inicio: ${it.hini}",
@@ -250,13 +281,13 @@ fun DetailsView(
                                     )
                                 }
                             }
-                            item{
+                            item {
                                 Card(
                                     modifier = Modifier
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                 ) {
                                     Text(
                                         text = "Profesor solicitante: ${it.solicitante.nombre} ${it.solicitante.apellidos}",
@@ -265,33 +296,85 @@ fun DetailsView(
                                     )
                                 }
                             }
-                            item{
-                                if (it.incidencias != null) {
-                                    Card(
-                                        modifier = Modifier
-                                            .padding(8.dp)
-                                            .fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = GreenContainer)
-                                    ) {
+                            item {
+                                var enabled by remember { mutableStateOf(false) }
+
+                                Card(
+                                    modifier = Modifier
+                                        .padding(8.dp)
+                                        .fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
+                                ) {
+                                    Row(modifier = Modifier.fillMaxWidth()){
                                         Text(
-                                            text = "Incidencias: ${it.incidencias}",
+                                            text = "Incidencias:",
                                             fontWeight = FontWeight.Bold,
                                             modifier = Modifier.padding(8.dp)
                                         )
+                                        Spacer(modifier = Modifier.width(230.dp))
+                                        Switch(
+                                            enabled = enableUpdate,
+                                            checked = enabled,
+                                            onCheckedChange = { enabled = it },
+                                            modifier = Modifier.padding(8.dp).size(20.dp)
+                                        )
                                     }
-<<<<<<< Updated upstream
-=======
 
-                                    if (showIncidencia) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .padding(2.dp),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        OutlinedTextField(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .border(
+                                                    0.dp,
+                                                    Color.Black,
+                                                    RoundedCornerShape(12.dp)
+                                                ),
+                                            value = incidencias,
+                                            onValueChange = { incidencias = it },
+                                            textStyle = TextStyle(
+                                                color = Color.Black,
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.Bold
+                                            ),
 
+                                            enabled = enabled,
+                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                        )
+                                    }
+                                    Button(
+                                        onClick = {
+                                            val updateActividad =
+                                                actividad!!.copy(incidencias = incidencias)
+                                            actividadViewModel.updateActividad(updateActividad)
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 20.dp),  // Padding superior para el botón
+                                        shape = RoundedCornerShape(50.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFFB0D0E0),  // Verde moderno
+                                            contentColor = Color.Black  // Texto blanco
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "Añadir incidencia",
+                                            fontWeight = FontWeight.Bold
+                                        )
                                     }
 
 
->>>>>>> Stashed changes
+
+
                                 }
+
                             }
-                            item{
+                            item {
                                 var trans = "No"
                                 if (it.transporteReq) {
                                     Card(
@@ -299,7 +382,7 @@ fun DetailsView(
                                             .padding(8.dp)
                                             .fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                        colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                     ) {
                                         trans = "Si"
                                         Text(
@@ -307,7 +390,7 @@ fun DetailsView(
                                             fontWeight = FontWeight.Bold,
                                             modifier = Modifier.padding(8.dp)
                                         )
-                                        if(it.comentTransporte != null) {
+                                        if (it.comentTransporte != null) {
                                             Text(
                                                 text = "${it.comentTransporte}",
                                                 fontWeight = FontWeight.Bold,
@@ -317,7 +400,7 @@ fun DetailsView(
                                     }
                                 }
                             }
-                            item{
+                            item {
                                 var aloj = "No"
                                 if (it.alojamientoReq) {
                                     Card(
@@ -325,7 +408,7 @@ fun DetailsView(
                                             .padding(8.dp)
                                             .fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                        colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                     ) {
                                         aloj = "Si"
                                         Text(
@@ -333,7 +416,7 @@ fun DetailsView(
                                             fontWeight = FontWeight.Bold,
                                             modifier = Modifier.padding(8.dp)
                                         )
-                                        if(it.comentAlojamiento != null) {
+                                        if (it.comentAlojamiento != null) {
                                             Text(
                                                 text = "${it.comentAlojamiento}",
                                                 fontWeight = FontWeight.Bold,
@@ -350,15 +433,15 @@ fun DetailsView(
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                 ) {
                                     Text(
                                         text = "Profesores participantes: ",
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(8.dp)
                                     )
-                                    for(prof in profParticipantes){
-                                        if(prof.actividad.id == it.id){
+                                    for (prof in profParticipantes) {
+                                        if (prof.actividad.id == it.id) {
                                             Text(
                                                 text = "${prof.profesor.nombre} ${prof.profesor.apellidos}",
                                                 fontWeight = FontWeight.Bold,
@@ -376,108 +459,116 @@ fun DetailsView(
                                         .padding(8.dp)
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = GreenContainer)
+                                    colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                 ) {
                                     Text(
                                         text = "Grupos participantes: ",
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(8.dp)
                                     )
-                                    for(grupo in grupoParticipantes){
-                                        if(grupo.actividades.id == it.id){
-                                            Text(
-                                                text = grupo.grupo.codGrupo,
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier.padding(8.dp)
-                                            )
-                                        }
-                                    }
+                                    for (grupo in grupoParticipantes) {
+                                        var numPart by remember { mutableStateOf(grupo.numParticipantes) }
+                                        var coment by remember { mutableStateOf(grupo.comentario) }
+                                        var enable by remember { mutableStateOf(false) }
 
-                                }
-                            }
-<<<<<<< Updated upstream
-                            item {
-                                var showPic by remember { mutableStateOf(false) }
-                                Column {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(100.dp)
-                                    ) {
-                                        LazyRow {
-                                            items(10) {
-                                                Card(
+                                        if (grupo.actividades.id == it.id) {
+                                            Column {
+                                                Row(modifier = Modifier.fillMaxWidth()) {
+                                                    Text(
+                                                        text = grupo.grupo.codGrupo,
+                                                        fontWeight = FontWeight.Bold,
+                                                        modifier = Modifier.padding(8.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(270.dp))
+                                                    Switch(
+                                                        enabled = enableUpdate,
+                                                        checked = enable,
+                                                        onCheckedChange = { enable = it },
+                                                        modifier = Modifier.padding(8.dp).size(20.dp)
+                                                    )
+                                                }
+
+                                                Text(
+                                                    text = "Numero de asistentes",
+                                                    fontWeight = FontWeight.Bold,
+                                                    modifier = Modifier.padding(8.dp)
+                                                )
+                                                OutlinedTextField(
                                                     modifier = Modifier
-                                                        .padding(3.dp)
-                                                        .fillMaxHeight()
-                                                        .width(60.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    colors = CardDefaults.cardColors(containerColor = GreenContainer),
-                                                    onClick = { showPic = true }
-                                                ) {
+                                                        .fillMaxSize()
+                                                        .border(
+                                                            0.dp,
+                                                            Color.Black,
+                                                            RoundedCornerShape(12.dp)
+                                                        ),
+                                                    value = numPart.toString(),
+                                                    onValueChange = { numPart = it.toInt() },
+                                                    textStyle = TextStyle(
+                                                        color = Color.Black,
+                                                        fontSize = 16.sp,
+                                                        fontWeight = FontWeight.Bold
+                                                    ),
+                                                    enabled = enable,
+                                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                                )
 
-                                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                                        Icon(
-                                                            imageVector = ImageVector.vectorResource(R.drawable.photo),
-                                                            contentDescription = "añadir imagenes",
-                                                            modifier = Modifier.size(32.dp)
-                                                        )
-                                                    }
+                                                Text(
+                                                    text = "Comentarios:",
+                                                    fontWeight = FontWeight.Bold,
+                                                    modifier = Modifier.padding(8.dp)
+                                                )
+                                                OutlinedTextField(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .border(
+                                                            0.dp,
+                                                            Color.Black,
+                                                            RoundedCornerShape(12.dp)
+                                                        ),
+                                                    value = coment?:"",
+                                                    onValueChange = { coment = it },
+                                                    textStyle = TextStyle(
+                                                        color = Color.Black,
+                                                        fontSize = 16.sp,
+                                                        fontWeight = FontWeight.Bold
+                                                    ),
+                                                    enabled = enable,
+                                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                                                )
+                                                Button(
+                                                    onClick = {
+                                                        val updateGrupoParticipante =
+                                                            grupo.copy(
+                                                                numParticipantes = numPart,
+                                                                comentario = coment
+                                                            )
+                                                        grupoParticipanteViewModel.updateGrupoParticipante(updateGrupoParticipante)
+
+
+                                                    },
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .padding(top = 8.dp),  // Padding superior para el botón
+                                                    shape = RoundedCornerShape(50.dp),
+                                                    colors = ButtonDefaults.buttonColors(
+                                                        containerColor = Color(0xFFB0D0E0),  // Verde moderno
+                                                        contentColor = Color.Black  // Texto blanco
+                                                    )
+                                                ) {
+                                                    Text(
+                                                        text = "Guardar cambios",
+                                                        fontWeight = FontWeight.Bold
+                                                    )
                                                 }
                                             }
-                                        }
-                                        if(showPic) Pic(onDismiss = { showPic = false })
-                                    }
-                                }
-                            }
-                            item {
-                                var showMap by remember { mutableStateOf(false) }
-                                var showPhoto by remember { mutableStateOf(false) }
-                                var enabledAddPhoto by remember { mutableStateOf(false) }
 
-                                for(prof in profParticipantes){
-                                    if(prof.actividad.id == it.id && prof.profesor.uuid == Usuario.uuid){
-                                        enabledAddPhoto = true
-                                    }
-                                }
 
-                                Row {
-                                    Card(
-                                        modifier = Modifier
-                                            .padding(8.dp)
-                                            .weight(0.5f),
-                                        shape = RoundedCornerShape(12.dp),
-                                        colors = CardDefaults.cardColors(containerColor = GreenContainer),
-                                        onClick = { showPhoto = true },
-                                        enabled = enabledAddPhoto
-
-                                    ) {
-                                        if (showPhoto) Fotos(onDismiss = { showPhoto = false })
-                                        Row {
-                                            Icon(imageVector = ImageVector.vectorResource(R.drawable.addphoto), contentDescription = "photo", modifier = Modifier.padding(8.dp))
-                                            Text(text = "Añadir imagenes", fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
                                         }
                                     }
-                                    Card(
-                                            modifier = Modifier
-                                                .padding(8.dp)
-                                                .weight(0.5f),
-                                    shape = RoundedCornerShape(12.dp),
-                                    colors = CardDefaults.cardColors(containerColor = GreenContainer),
-                                    onClick = { showMap = true }
 
-                                    ) {
-                                    if (showMap) Mapa(onDismiss = { showMap = false })
-                                    Row {
-                                        Icon(Icons.Default.LocationOn, contentDescription = "Ubicacion", modifier = Modifier.padding(8.dp))
-                                        Text(text = "Ubicacion", fontWeight = FontWeight.Bold, modifier = Modifier.padding(8.dp))
-                                    }
-                                }
                                 }
                             }
-=======
 
->>>>>>> Stashed changes
                         }
                     }
                     Box(modifier = Modifier.weight(0.5f)) {

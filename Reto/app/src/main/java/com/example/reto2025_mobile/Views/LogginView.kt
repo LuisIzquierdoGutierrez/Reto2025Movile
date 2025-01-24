@@ -1,7 +1,5 @@
 package com.example.reto2025_mobile.Views
 
-import android.content.Context
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -14,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -25,9 +24,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -42,22 +40,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.reto2025_mobile.API.RetrofitServiceFactory
 import com.example.reto2025_mobile.Componentes.Usuario
+import com.example.reto2025_mobile.Componentes.getLoginData
+import com.example.reto2025_mobile.Componentes.readLogData
+import com.example.reto2025_mobile.Componentes.saveLoginData
 import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ProfesorLoginViewModel
 import com.example.reto2025_mobile.data.Profesor
 import com.google.gson.Gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.time.format.TextStyle
+
+
 
 @Composable
 fun LogginView(
@@ -71,6 +67,18 @@ fun LogginView(
     val loginResult by profesorLoginViewModel.loginResult.observeAsState()
     val errorMessage by profesorLoginViewModel.errorMessage.observeAsState()
     val isLoading by profesorLoginViewModel.isLoading.observeAsState(false)
+    var users: List<Usuario> by remember { mutableStateOf(listOf()) }
+
+    LaunchedEffect(Unit) {
+        users = readLogData(context)
+        val (savedEmail, savedPassword) = getLoginData(context)
+        if (savedEmail != null && savedPassword != null) {
+            user = savedEmail
+            pass = savedPassword
+            profesorLoginViewModel.login(savedEmail, savedPassword)
+        }
+    }
+
 
     Box(
         modifier = Modifier
@@ -94,13 +102,22 @@ fun LogginView(
                     .padding(top = 220.dp)// Aumenta el tamaño de la imagen sin afectar el layout
             )
 
+            if(users.isNotEmpty()){
+                LazyRow {
+                    items(users.size) { index ->
+                        Button(onClick = { /*TODO*/ }) {
+                            Text(text = users[index].nombre)
+                        }
 
+                    }
+                }
+            }
 
             // Campo de Usuario
             OutlinedTextField(
                 value = user,
                 onValueChange = { user = it },
-                label = { Text("Correo electrónico") },
+                label = { Text("Email") },
                 leadingIcon = { Icon(imageVector = Icons.Default.Person, contentDescription = "Icono de usuario") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier
@@ -165,18 +182,19 @@ fun LogginView(
                 loginResult?.let {
                     login = false
                     val profesorJson = Gson().toJson(loginResult)
-                    val user: Profesor = Gson().fromJson(profesorJson, Profesor::class.java)
-                    Usuario.nombre = user.nombre
-                    Usuario.apellidos = user.apellidos
-                    Usuario.uuid = user.uuid
-                    Usuario.correo = user.correo
-                    Usuario.dni = user.dni
-                    Usuario.rol = user.rol
-                    Usuario.activo = user.activo
-                    Usuario.depart = user.depart
-                    Usuario.esJefeDep = user.esJefeDep
-                    Usuario.password = user.password
-                    Usuario.urlFoto = user.urlFoto
+                    val usuario: Profesor = Gson().fromJson(profesorJson, Profesor::class.java)
+                    Usuario.nombre = usuario.nombre
+                    Usuario.apellidos = usuario.apellidos
+                    Usuario.uuid = usuario.uuid
+                    Usuario.correo = usuario.correo
+                    Usuario.dni = usuario.dni
+                    Usuario.rol = usuario.rol
+                    Usuario.activo = usuario.activo
+                    Usuario.depart = usuario.depart
+                    Usuario.esJefeDep = usuario.esJefeDep
+                    Usuario.password = usuario.password
+                    Usuario.urlFoto = usuario.urlFoto
+                    saveLoginData(context, user, pass)
                     navController.navigate("home")
                 }
             }
