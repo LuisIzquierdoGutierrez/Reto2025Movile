@@ -4,6 +4,6 @@ data class Foto(
     val id: Int,
     val urlFoto: String,
     val descripcion: String,
-    val actividadId: Int
+    val actividad: Actividad
 )
 

@@ -17,15 +17,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
@@ -57,10 +53,10 @@ import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
+import com.example.reto2025_mobile.ViewModel.PuntosInteresViewModel
 import com.example.reto2025_mobile.data.Actividad
 import com.example.reto2025_mobile.data.GrupoParticipante
 import com.example.reto2025_mobile.data.ProfParticipante
-import com.example.reto2025_mobile.ui.theme.GreenBar
 import com.example.reto2025_mobile.ui.theme.BlueContainer
 
 @Composable
@@ -68,25 +64,28 @@ fun DetailsView(
     navController: NavController,
     actividadViewModel: ActividadViewModel,
     profParticipanteViewModel: ProfParticipanteViewModel,
-    grupoParticipanteViewModel: GrupoParticipanteViewModel
+    grupoParticipanteViewModel: GrupoParticipanteViewModel,
+    puntosInteresViewModel: PuntosInteresViewModel
 ) {
-    val profParticipantes: List<ProfParticipante> by profParticipanteViewModel.profesoresParticipantes.observeAsState(
-        emptyList()
-    )
-    val grupoParticipantes: List<GrupoParticipante> by grupoParticipanteViewModel.gruposParticipantes.observeAsState(
-        emptyList()
-    )
+    val profParticipantes: List<ProfParticipante> by profParticipanteViewModel.profesoresParticipantes.observeAsState( emptyList() )
+    val grupoParticipantes: List<GrupoParticipante> by grupoParticipanteViewModel.gruposParticipantes.observeAsState( emptyList() )
+
+//profParticipanteViewModel.getProfesoresParticipantes()
     val actividad: Actividad? by actividadViewModel.actividad.observeAsState()
     var enableUpdate by remember { mutableStateOf(false) }
     // datos de la actividad
     var incidencias by remember { mutableStateOf(actividad?.incidencias ?: "") }
+    var participantes: MutableSet<String> = mutableSetOf()
 
     for (prof in profParticipantes) {
         if (prof.actividad.id == actividad?.id && prof.profesor.uuid == Usuario.uuid) {
+            participantes.add(prof.profesor.uuid)
             enableUpdate = true
             break
         }
     }
+
+
     actividad?.let {
 
         Scaffold(
@@ -94,7 +93,7 @@ fun DetailsView(
                 DetailTopBar(navController = navController)
             },
             bottomBar = {
-                BottomDetailBar(actividad = actividad!!, profParticipantes = profParticipantes)
+                BottomDetailBar(actividad = actividad!!, profParticipantes = profParticipantes, puntosInteresViewModel = puntosInteresViewModel, participantes = participantes)
             }
         ) { innerPadding ->
             Box(

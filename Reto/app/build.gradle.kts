@@ -47,10 +47,25 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    buildFeatures {
+        viewBinding = true
+    }
     buildToolsVersion = "35.0.0"
+
 }
 
 dependencies {
+
+
+    implementation ("androidx.camera:camera-core:1.1.0-beta01")
+    implementation ("androidx.camera:camera-camera2:1.1.0-beta01")
+    implementation ("androidx.camera:camera-lifecycle:1.1.0-beta01")
+    implementation ("androidx.camera:camera-video:1.1.0-beta01")
+
+    implementation ("androidx.camera:camera-view:1.1.0-beta01")
+    implementation ("androidx.camera:camera-extensions:1.1.0-beta01")
+
+    implementation ("androidx.constraintlayout:constraintlayout:2.1.4")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -60,12 +75,17 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+
+    implementation("com.github.bumptech.glide:compose:1.0.0-beta01")
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.runtime.livedata)
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation ("com.squareup.okhttp3:okhttp:4.9.1")
+    implementation ("com.squareup.okhttp3:logging-interceptor:4.9.1")
+
 
     implementation("io.coil-kt:coil-compose:2.1.0")
     implementation(libs.osmdroid.android)
