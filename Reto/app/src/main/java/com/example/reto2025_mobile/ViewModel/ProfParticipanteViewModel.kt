@@ -25,4 +25,15 @@ class ProfParticipanteViewModel: ViewModel() {
             }
         }
     }
+
+    fun getProfesoresParticipantesByActividadId(id: Int) {
+        viewModelScope.launch {
+            try {
+                val profesoresParticipantesList = service.getProfesoresParticipantesByActividadId(id)
+                _profesoresParticipantes.value = profesoresParticipantesList
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }

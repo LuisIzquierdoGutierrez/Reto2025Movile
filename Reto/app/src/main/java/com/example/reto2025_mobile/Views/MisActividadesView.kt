@@ -69,24 +69,13 @@ fun MisActividades(
     profParticipanteViewModel: ProfParticipanteViewModel,
     grupoParticipanteViewModel: GrupoParticipanteViewModel
 ) {
-    val grupoParticipantes: List<GrupoParticipante> by grupoParticipanteViewModel.gruposParticipantes.observeAsState(
-        emptyList()
-    )
     val profesParticipantes: List<ProfParticipante> by profParticipanteViewModel.profesoresParticipantes.observeAsState(
         emptyList()
     )
 
     profParticipanteViewModel.getProfesoresParticipantes()
-    grupoParticipanteViewModel.getGruposParticipantes()
-
 
     val actividades: List<Actividad> by actividadViewModel.actividades.observeAsState(emptyList())
-
-
-    val estados: List<String> =
-        listOf("APROBADA", "CANCELADA", "REALIZADA", "SOLICITADA", "DENEGADA", "REALIZANDOSE")
-
-
 
     Scaffold(
         topBar = { ActividadesTopAppBar(navController) },
@@ -202,7 +191,7 @@ fun MisActividades(
                 LazyColumn {
                     items(profesParticipantes) { actividad ->
                         var color = SelectColor(actividad.actividad.estado)
-                        if (actividad.profesor.uuid == Usuario.uuid) {
+                        if (actividad.profesor.uuid.equals(Usuario.uuid)) {
                             Card(
                                 modifier = Modifier
                                     .weight(1f)

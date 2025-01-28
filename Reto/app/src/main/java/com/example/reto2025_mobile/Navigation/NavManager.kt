@@ -8,6 +8,7 @@ import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfResponsableViewModel
+import com.example.reto2025_mobile.ViewModel.PuntosInteresViewModel
 import com.example.reto2025_mobile.Views.ActividadesView
 import com.example.reto2025_mobile.Views.CalendarView
 import com.example.reto2025_mobile.Views.DetailsView
@@ -24,7 +25,8 @@ fun NavManager(
     actividadViewModel: ActividadViewModel,
     profParticipanteViewModel: ProfParticipanteViewModel,
     grupoParticipanteViewModel: GrupoParticipanteViewModel,
-    profResponsableViewModel: ProfResponsableViewModel
+    profResponsableViewModel: ProfResponsableViewModel,
+    puntosInteresViewModel: PuntosInteresViewModel
 ) {
     NavHost(
         navController = navController,
@@ -43,7 +45,7 @@ fun NavManager(
             MisActividades(navController, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel)
         }
         composable("details"){
-            DetailsView(navController, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel)
+            DetailsView(navController, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel, puntosInteresViewModel)
         }
         composable("FAQ"){
             FAQView(navController)

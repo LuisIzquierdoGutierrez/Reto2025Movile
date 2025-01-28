@@ -11,13 +11,22 @@ import com.example.reto2025_mobile.data.GrupoParticipante
 import com.example.reto2025_mobile.data.ProfParticipante
 import com.example.reto2025_mobile.data.ProfResponsable
 import com.example.reto2025_mobile.data.Profesor
+import com.example.reto2025_mobile.data.PuntoInteres
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.POST
 import retrofit2.http.PUT
+import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.io.File
 
 interface RetrofitService {
     @GET("actividades")
@@ -44,6 +53,9 @@ interface RetrofitService {
     @GET("profesoresParticipantes")
     suspend fun getProfesoresParticipantes(): List<ProfParticipante>
 
+    @GET("profesoresParticipantes/actividad/{id}")
+    suspend fun getProfesoresParticipantesByActividadId(@Path("id") id: Int): List<ProfParticipante>
+
     @GET("profesoresResponsables")
     suspend fun getProfesoresResponsables(): List<ProfResponsable>
 
@@ -62,6 +74,15 @@ interface RetrofitService {
     @GET("fotos")
     suspend fun getFotos(): List<Foto>
 
+    @GET("puntosinteres")
+    suspend fun getPuntosInteres(): List<PuntoInteres>
+
+    @POST("puntosinteres")
+    suspend fun createPuntoInteres(@Body puntoInteres: PuntoInteres): Response<PuntoInteres>
+
+    @DELETE("puntosinteres/{id}")
+    suspend fun deletePuntoInteres(@Path("id") id: Int): Response<PuntoInteres>
+
     @GET("profesores/inicio")
     suspend fun login(
         @Query("correo") correo: String,
@@ -79,6 +100,15 @@ interface RetrofitService {
         @Path("id") id: Int?,
         @Body grupoParticipante: GrupoParticipante
     ): GrupoParticipante
+
+    @Multipart
+    @POST("fotos/{idActividad}/foto")
+    suspend fun uploadPhoto(
+        @Path("idActividad") idActividad: Int,
+        @Query("descripcion") descripcion: String,
+        @Body fichero: MultipartBody.Part
+    ): Response<Foto>
+
 
 
 }
