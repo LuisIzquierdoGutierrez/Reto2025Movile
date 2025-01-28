@@ -26,6 +26,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Part
 import retrofit2.http.Path
 import retrofit2.http.Query
+import java.io.File
 
 interface RetrofitService {
     @GET("actividades")
@@ -104,8 +105,8 @@ interface RetrofitService {
     @POST("fotos/{idActividad}/foto")
     suspend fun uploadPhoto(
         @Path("idActividad") idActividad: Int,
-        @Part("descripcion") descripcion: RequestBody,
-        @Part fichero: MultipartBody.Part
+        @Query("descripcion") descripcion: String,
+        @Body fichero: MultipartBody.Part
     ): Response<Foto>
 
 

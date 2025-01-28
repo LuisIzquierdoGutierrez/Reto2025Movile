@@ -77,19 +77,7 @@ fun FAQView(navController: NavController) {
                                 lineHeight = 24.sp,
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
-                            // Botón para descargar PDF
-                            Button(
-                                onClick = { },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = GreenBar,  // Verde moderno
-                                    contentColor = Color.White  // Texto blanco
-                                )
-                            ) {
-                                Text(text = "Descargar PDF")
-                            }
+
                         }
 
 

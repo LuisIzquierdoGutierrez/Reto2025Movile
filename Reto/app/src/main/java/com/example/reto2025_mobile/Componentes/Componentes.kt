@@ -100,6 +100,8 @@ import java.text.Normalizer
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import android.Manifest
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.material3.*
@@ -116,6 +118,7 @@ import com.example.reto2025_mobile.data.PuntoInteres
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import java.io.FileOutputStream
 
 //Top bar de la pantalla de Detalles de una actividad
 
@@ -622,10 +625,10 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
                             onClick = {
                                 selectedImageUris.forEach { uri ->
                                     uri?.let {
-
+                                        fotoViewModel.uploadPhoto(context, idActividad, "descripcion", uri)
                                     }
                                 }
-
+                                onDismiss()
                             }
                         ) {
                             Box(
@@ -1056,8 +1059,7 @@ fun ActivityDetails(
                 .fillMaxWidth()
                 .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = BlueContainer),
-            onClick = { navController.navigate("details") }
+            colors = CardDefaults.cardColors(containerColor = BlueContainer)
         ) {
             Box(
                 modifier = Modifier
@@ -1180,14 +1182,19 @@ fun MapScreen(
                     Row {
                         Button(onClick = {
                             markers = markers.filterNot { it.first == position }
-                            val puntoInteres = PuntoInteres(
-                                id = null,
-                                descripcion = description,
-                                latitud = newMarkerPosition!!.latitude.toString(),
-                                longitud = newMarkerPosition!!.longitude.toString(),
-                                actividad = actividad
-                            )
-                            puntosInteresViewModel.deletePuntoInteres(puntoInteres)
+                            puntosInteres.forEach() { puntoInteres ->
+                                val marker = LatLng(puntoInteres.latitud.toDouble(), puntoInteres.longitud.toDouble())
+                                if (marker == position) {
+                                    val puntoInteres = PuntoInteres(
+                                        id = puntoInteres.id,
+                                        descripcion = description,
+                                        latitud = puntoInteres.latitud,
+                                        longitud = puntoInteres.longitud,
+                                        actividad = actividad
+                                    )
+                                    puntosInteresViewModel.deletePuntoInteres(puntoInteres)
+                                }
+                            }
                             markerToDelete = null
                         }) {
                             Text("Sí")
@@ -1323,3 +1330,11 @@ fun clearLoginData(context: Context) {
     editor.apply()
 }
 
+fun saveImageToFile(context: Context, imageBytes: ByteArray): String {
+    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+    val file = File(context.filesDir, "profile_image.jpg")
+    FileOutputStream(file).use { out ->
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
+    }
+    return file.absolutePath
+}

@@ -1,5 +1,6 @@
 package com.example.reto2025_mobile.ViewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -48,10 +49,13 @@ class PuntosInteresViewModel : ViewModel() {
     fun deletePuntoInteres(puntoInteres: PuntoInteres) {
         viewModelScope.launch {
             try {
-                val response = puntoInteres.id?.let { service.deletePuntoInteres(it) }
+               Log.d("pto", "deletePuntoInteres: ${puntoInteres.id}")
+                val response = puntoInteres.id?.let { service.deletePuntoInteres(puntoInteres.id) }
                 if (response != null) {
                     if (response.isSuccessful) {
                         // Manejar respuesta exitosa
+                        val savedPuntoInteres = response.body()
+                        // Hacer algo con el savedPuntoInteres
                     } else {
                         // Manejar respuesta de error
                     }
