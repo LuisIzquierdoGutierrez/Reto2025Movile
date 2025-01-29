@@ -99,7 +99,8 @@ fun ActividadesView(
 
     Scaffold(
         topBar = { ActividadesTopAppBar(navController) },
-        bottomBar = { BottomAppBar(navController = navController) }
+        bottomBar = { BottomAppBar(navController = navController) },
+        containerColor = Color.LightGray
     ) { innerPadding ->
         Box(
             modifier = Modifier

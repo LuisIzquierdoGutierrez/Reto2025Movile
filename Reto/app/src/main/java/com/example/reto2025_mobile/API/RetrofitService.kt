@@ -14,6 +14,7 @@ import com.example.reto2025_mobile.data.Profesor
 import com.example.reto2025_mobile.data.PuntoInteres
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -105,9 +106,20 @@ interface RetrofitService {
     @POST("fotos/{idActividad}/foto")
     suspend fun uploadPhoto(
         @Path("idActividad") idActividad: Int,
-        @Query("descripcion") descripcion: String,
-        @Body fichero: MultipartBody.Part
+        @Part("descripcion") descripcion: RequestBody,
+        @Part fichero: MultipartBody.Part
     ): Response<Foto>
+
+    @GET("/acex/fotos/{idActividad}/foto")
+    suspend fun getFoto(
+        @Path("idActividad") idActividad: Int,
+        @Query("id") id: Int // Parámetro de consulta 'id' para la foto
+    ): ResponseBody
+
+    @GET("/acex/fotos/actividad/{idActividad}")
+    suspend fun getFotos(
+        @Path("idActividad") idActividad: Int
+    ): List<Foto>
 
 
 

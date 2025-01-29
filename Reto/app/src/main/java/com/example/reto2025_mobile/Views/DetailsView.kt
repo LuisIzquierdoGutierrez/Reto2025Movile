@@ -1,6 +1,8 @@
 package com.example.reto2025_mobile.Views
 
+import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,18 +17,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -35,8 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -49,8 +54,8 @@ import com.example.reto2025_mobile.Componentes.Pics
 import com.example.reto2025_mobile.Componentes.SelectColor
 import com.example.reto2025_mobile.Componentes.Usuario
 import com.example.reto2025_mobile.Componentes.formatFecha
-import com.example.reto2025_mobile.R
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
+import com.example.reto2025_mobile.ViewModel.FotoViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.PuntosInteresViewModel
@@ -65,13 +70,33 @@ fun DetailsView(
     actividadViewModel: ActividadViewModel,
     profParticipanteViewModel: ProfParticipanteViewModel,
     grupoParticipanteViewModel: GrupoParticipanteViewModel,
-    puntosInteresViewModel: PuntosInteresViewModel
+    puntosInteresViewModel: PuntosInteresViewModel,
+    fotoViewModel: FotoViewModel
 ) {
-    val profParticipantes: List<ProfParticipante> by profParticipanteViewModel.profesoresParticipantes.observeAsState( emptyList() )
-    val grupoParticipantes: List<GrupoParticipante> by grupoParticipanteViewModel.gruposParticipantes.observeAsState( emptyList() )
+
+    val fotos by fotoViewModel.bitmaps.collectAsState()
+
+    val profParticipantes: List<ProfParticipante> by profParticipanteViewModel.profesoresParticipantes.observeAsState(
+        emptyList()
+    )
+    val grupoParticipantes: List<GrupoParticipante> by grupoParticipanteViewModel.gruposParticipantes.observeAsState(
+        emptyList()
+    )
 
 //profParticipanteViewModel.getProfesoresParticipantes()
     val actividad: Actividad? by actividadViewModel.actividad.observeAsState()
+
+    val id = actividad?.id
+
+    LaunchedEffect(id) {
+        if (id != null) {
+            fotoViewModel.fetchFotos(id)
+        }
+    }
+
+    var showPic by remember { mutableStateOf(false) }
+    var selectedBitmap by remember { mutableStateOf<Bitmap?>(null) }
+
     var enableUpdate by remember { mutableStateOf(false) }
     // datos de la actividad
     var incidencias by remember { mutableStateOf(actividad?.incidencias ?: "") }
@@ -85,6 +110,8 @@ fun DetailsView(
         }
     }
 
+    val participan = profParticipantes.filter { it.actividad.id == id }
+
 
     actividad?.let {
 
@@ -93,8 +120,14 @@ fun DetailsView(
                 DetailTopBar(navController = navController)
             },
             bottomBar = {
-                BottomDetailBar(actividad = actividad!!, profParticipantes = profParticipantes, puntosInteresViewModel = puntosInteresViewModel, participantes = participantes)
-            }
+                BottomDetailBar(
+                    actividad = actividad!!,
+                    profParticipantes = profParticipantes,
+                    puntosInteresViewModel = puntosInteresViewModel,
+                    participantes = participantes
+                )
+            },
+            containerColor = Color.LightGray
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -110,43 +143,53 @@ fun DetailsView(
 
                         val color = SelectColor(actividad!!.estado)
 
-                        LazyColumn {
-                            item {
-                                var showPic by remember { mutableStateOf(false) }
-                                Column {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(100.dp)
-                                    ) {
-                                        LazyRow {
-                                            items(10) {
-                                                Card(
-                                                    modifier = Modifier
-                                                        .padding(3.dp)
-                                                        .fillMaxHeight()
-                                                        .width(60.dp),
-                                                    shape = RoundedCornerShape(12.dp),
-                                                    colors = CardDefaults.cardColors(containerColor = BlueContainer),
-                                                    onClick = { showPic = true }
-                                                ) {
 
-                                                    Box(
-                                                        modifier = Modifier.fillMaxSize(),
-                                                        contentAlignment = Alignment.Center
-                                                    ) {
-                                                        Icon(
-                                                            imageVector = ImageVector.vectorResource(
-                                                                R.drawable.photo
+
+                        LazyColumn {
+                            if (fotos.isNotEmpty()) {
+                                item {
+
+                                    Column {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(100.dp)
+                                        ) {
+                                            if (fotos.isNotEmpty()) {
+                                                LazyRow {
+                                                    items(fotos) { bm ->
+                                                        Card(
+                                                            modifier = Modifier
+                                                                .padding(3.dp)
+                                                                .fillMaxHeight()
+                                                                .width(60.dp),
+                                                            shape = RoundedCornerShape(12.dp),
+                                                            colors = CardDefaults.cardColors(
+                                                                containerColor = BlueContainer
                                                             ),
-                                                            contentDescription = "añadir imagenes",
-                                                            modifier = Modifier.size(32.dp)
-                                                        )
+                                                            onClick = {
+                                                                showPic = true
+                                                                selectedBitmap = bm
+                                                            }
+                                                        ) {
+
+                                                            Box(
+                                                                modifier = Modifier.fillMaxSize(),
+                                                                contentAlignment = Alignment.Center
+                                                            ) {
+                                                                Image(
+                                                                    bitmap = bm.asImageBitmap(),
+                                                                    contentDescription = "Foto de actividad",
+                                                                    contentScale = ContentScale.Crop,
+                                                                    modifier = Modifier.fillMaxSize()
+                                                                )
+                                                            }
+                                                        }
                                                     }
                                                 }
                                             }
+
                                         }
-                                        if (showPic) Pics(onDismiss = { showPic = false })
                                     }
                                 }
                             }
@@ -305,7 +348,7 @@ fun DetailsView(
                                     shape = RoundedCornerShape(12.dp),
                                     colors = CardDefaults.cardColors(containerColor = BlueContainer)
                                 ) {
-                                    Row(modifier = Modifier.fillMaxWidth()){
+                                    Row(modifier = Modifier.fillMaxWidth()) {
                                         Text(
                                             text = "Incidencias:",
                                             fontWeight = FontWeight.Bold,
@@ -316,7 +359,9 @@ fun DetailsView(
                                             enabled = enableUpdate,
                                             checked = enabled,
                                             onCheckedChange = { enabled = it },
-                                            modifier = Modifier.padding(8.dp).size(20.dp)
+                                            modifier = Modifier
+                                                .padding(8.dp)
+                                                .size(20.dp)
                                         )
                                     }
 
@@ -366,8 +411,6 @@ fun DetailsView(
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
-
-
 
 
                                 }
@@ -439,16 +482,13 @@ fun DetailsView(
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier.padding(8.dp)
                                     )
-                                    for (prof in profParticipantes) {
-                                        if (prof.actividad.id == it.id) {
-                                            Text(
-                                                text = "${prof.profesor.nombre} ${prof.profesor.apellidos}",
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier.padding(8.dp)
-                                            )
-                                        }
+                                    participan.forEach { prof ->
+                                        Text(
+                                            text = "${prof.profesor.nombre} ${prof.profesor.apellidos}",
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(8.dp)
+                                        )
                                     }
-
                                 }
                             }
                             item {
@@ -483,7 +523,9 @@ fun DetailsView(
                                                         enabled = enableUpdate,
                                                         checked = enable,
                                                         onCheckedChange = { enable = it },
-                                                        modifier = Modifier.padding(8.dp).size(20.dp)
+                                                        modifier = Modifier
+                                                            .padding(8.dp)
+                                                            .size(20.dp)
                                                     )
                                                 }
 
@@ -524,7 +566,7 @@ fun DetailsView(
                                                             Color.Black,
                                                             RoundedCornerShape(12.dp)
                                                         ),
-                                                    value = coment?:"",
+                                                    value = coment ?: "",
                                                     onValueChange = { coment = it },
                                                     textStyle = TextStyle(
                                                         color = Color.Black,
@@ -541,7 +583,9 @@ fun DetailsView(
                                                                 numParticipantes = numPart,
                                                                 comentario = coment
                                                             )
-                                                        grupoParticipanteViewModel.updateGrupoParticipante(updateGrupoParticipante)
+                                                        grupoParticipanteViewModel.updateGrupoParticipante(
+                                                            updateGrupoParticipante
+                                                        )
 
 
                                                     },
@@ -567,17 +611,20 @@ fun DetailsView(
 
                                 }
                             }
+                        }
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            if (showPic) {
+                                Pics(bitmap = selectedBitmap, onDismiss = { showPic = false })
+                            }
 
                         }
-                    }
-                    Box(modifier = Modifier.weight(0.5f)) {
-
                     }
                 }
             }
         }
-    }
-    BackHandler {
-        navController.popBackStack()
+        BackHandler {
+            navController.popBackStack()
+        }
     }
 }
+

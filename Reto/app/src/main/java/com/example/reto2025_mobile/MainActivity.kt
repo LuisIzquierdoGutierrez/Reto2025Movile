@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.navigation.compose.rememberNavController
 import com.example.reto2025_mobile.Navigation.NavManager
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
+import com.example.reto2025_mobile.ViewModel.FotoViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfResponsableViewModel
@@ -29,8 +30,8 @@ class MainActivity : ComponentActivity() {
                 val grupoParticipanteViewModel by viewModels<GrupoParticipanteViewModel>()
                 val profResponsableViewModel by viewModels<ProfResponsableViewModel>()
                 val actividadViewModel by viewModels<ActividadViewModel>()
-
-                NavManager(navController, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel, profResponsableViewModel, puntosInteresViewModel)
+                val fotoViewModel by viewModels<FotoViewModel>()
+                NavManager(navController, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel, profResponsableViewModel, puntosInteresViewModel, fotoViewModel)
             }
         }
     }
