@@ -644,10 +644,10 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
                                         fotoViewModel.uploadPhoto(context, idActividad, descripcion, savedUri).observeForever { result ->
                                             if (result.isSuccess) {
                                                 fotoViewModel.fetchFotos(idActividad)
-                                                //Toast.makeText(context, "Foto subida con éxito: $uri", Toast.LENGTH_LONG).show()
+                                                Toast.makeText(context, "Foto guardada correctamente", Toast.LENGTH_SHORT).show()
                                             } else {
 
-                                                //Toast.makeText(context, "Error al subir la foto: ${uri}", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Error al guardar foto", Toast.LENGTH_SHORT).show()
                                                 //Log.d("pruebasubida","Error al subir la foto")
                                             }
                                         }

@@ -43,8 +43,7 @@ fun FAQView(navController: NavController) {
 
     Scaffold(
         topBar = { PerfilTopAppBar(navController) },
-        bottomBar = { BottomAppBar(navController = navController) },
-        containerColor = Color.LightGray
+        bottomBar = { BottomAppBar(navController = navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

@@ -35,8 +35,7 @@ fun CalendarView(
 
     Scaffold(
         topBar = { AppBar(navController) },
-        bottomBar = { BottomAppBar(navController = navController) },
-        containerColor = Color.LightGray
+        bottomBar = { BottomAppBar(navController = navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

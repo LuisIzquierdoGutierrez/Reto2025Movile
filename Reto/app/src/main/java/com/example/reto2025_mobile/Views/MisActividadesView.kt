@@ -79,8 +79,7 @@ fun MisActividades(
 
     Scaffold(
         topBar = { ActividadesTopAppBar(navController) },
-        bottomBar = { BottomAppBar(navController = navController) },
-        containerColor = Color.LightGray
+        bottomBar = { BottomAppBar(navController = navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
