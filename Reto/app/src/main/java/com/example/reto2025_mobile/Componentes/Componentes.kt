@@ -102,23 +102,30 @@ import java.time.format.DateTimeFormatter
 import android.Manifest
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
+import android.util.Log
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.compose.material3.*
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.viewinterop.AndroidView
 import coil.compose.rememberImagePainter
 import com.example.reto2025_mobile.ViewModel.FotoViewModel
 import com.example.reto2025_mobile.ViewModel.PuntosInteresViewModel
 import com.example.reto2025_mobile.data.PuntoInteres
+import com.google.android.gms.maps.model.Marker
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.FileOutputStream
+import java.io.InputStream
 
 //Top bar de la pantalla de Detalles de una actividad
 
@@ -454,27 +461,18 @@ fun Mapa(
 }
 
 @Composable
-fun Pics(onDismiss: () -> Unit) {
-    Dialog(onDismissRequest = onDismiss) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(500.dp)
-                .background(Color.Transparent)
-        ) {
-            Icon(
-                modifier = Modifier.fillMaxSize(),
-                imageVector = ImageVector.vectorResource(R.drawable.photo),
-                contentDescription = "foto"
+fun Pics(bitmap: Bitmap?, onDismiss: () -> Unit) {
+    Dialog(onDismissRequest = onDismiss, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap.asImageBitmap(),
+                contentDescription = "Foto de actividad",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.size(400.dp)
             )
-            /*AsyncImage(
-                model = imageUrl,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )*/
         }
     }
+
 }
 
 fun prepareFilePart(context: Context, uri: Uri, description: String): MultipartBody.Part {
@@ -623,9 +621,37 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
                             shape = RoundedCornerShape(12.dp),
                             colors = CardDefaults.cardColors(containerColor = BlueContainer),
                             onClick = {
+                                val photoDir = File(context.filesDir, "fotos")
+                                if (!photoDir.exists()) {
+                                    photoDir.mkdir()
+                                }
+                                //val photoFile = File(photoDir, "photo_${System.currentTimeMillis()}.jpg")
                                 selectedImageUris.forEach { uri ->
                                     uri?.let {
-                                        fotoViewModel.uploadPhoto(context, idActividad, "descripcion", uri)
+                                        val foto = getFileFromUri(context, uri)
+
+                                        val rotatedBitmap =
+                                            foto?.let { it1 -> rotateImageIfRequired(context, it1) }
+                                        val outputStream = FileOutputStream(foto)
+                                        if (rotatedBitmap != null) {
+                                            rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                                        }
+                                        outputStream.close()
+
+                                        val savedUri = Uri.fromFile(foto)
+                                        // Subir la foto a la API
+                                        val descripcion = "Foto de la actividad ${idActividad}"
+                                        fotoViewModel.uploadPhoto(context, idActividad, descripcion, savedUri).observeForever { result ->
+                                            if (result.isSuccess) {
+                                                fotoViewModel.fetchFotos(idActividad)
+                                                //Toast.makeText(context, "Foto subida con éxito: $uri", Toast.LENGTH_LONG).show()
+                                            } else {
+
+                                                //Toast.makeText(context, "Error al subir la foto: ${uri}", Toast.LENGTH_SHORT).show()
+                                                //Log.d("pruebasubida","Error al subir la foto")
+                                            }
+                                        }
+
                                     }
                                 }
                                 onDismiss()
@@ -688,7 +714,7 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
 
         Dialog(onDismissRequest = { isCameraVisible = false },
             properties = DialogProperties(usePlatformDefaultWidth = false),
-            ) {
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -712,21 +738,63 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
                     contentAlignment = Alignment.BottomCenter
                 ) {
                     IconButton(onClick = {
-                        takePhoto(imageCapture, context) { uri ->
-                            photoUri = uri
-                            showDialog = true
+                        showDialog = true
+                        val photoDir = File(context.filesDir, "fotos")
+                        if (!photoDir.exists()) {
+                            photoDir.mkdir()
                         }
+                        val photoFile = File(photoDir, "photo_${System.currentTimeMillis()}.jpg")
+
+                        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
+                        // Tomar la foto y guardarla en el archivo creado
+                        imageCapture.takePicture(
+                            outputOptions,
+                            ContextCompat.getMainExecutor(context),
+                            object : ImageCapture.OnImageSavedCallback {
+                                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                                    val savedUri = Uri.fromFile(photoFile)
+
+                                    selectedImageUris.add(savedUri)
+                                }
+
+                                override fun onError(exception: ImageCaptureException) {
+                                    //Toast.makeText(context, "Error al subir la foto: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                    //onUploadError(exception)
+                                }
+                            }
+                        )
+                        showDialog = true
+                        isCameraVisible = false
+                        /*takePhotoAndUpload(
+                            imageCapture = imageCapture,
+                            context = context,
+                            idActividad = idActividad,
+                            fotoViewModel = fotoViewModel,
+                            onUploadSuccess = { uri ->
+                                Toast.makeText(context, "Foto subida con éxito: $uri", Toast.LENGTH_LONG).show()
+                            },
+                            onUploadError = { exception ->
+                                Toast.makeText(context, "Error al subir la foto: ${exception.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        )*/
                     }) {
-                        Icon(imageVector = ImageVector.vectorResource(R.drawable.photo), contentDescription = "Tomar foto", modifier = Modifier.size(100.dp))
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.photo),
+                            contentDescription = "Tomar foto",
+                            modifier = Modifier.size(100.dp)
+                        )
                     }
 
                 }
             }
+            //probando camara
 
             // Mostrar el diálogo de confirmación con la foto
-            if (showDialog && photoUri != null) {
+           /* if (showDialog && photoUri != null) {
                 AlertDialog(
-                    onDismissRequest = { showDialog = false },
+                    onDismissRequest = { showDialog = false
+                                       isCameraVisible = true},
                     properties = DialogProperties(usePlatformDefaultWidth = false), modifier = Modifier.height(600.dp),
                     title = { Text("Añadir Foto") },
                     text = {
@@ -771,7 +839,7 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
                         }
                     }
                 )
-            }
+            }*/
 
             // Usamos LaunchedEffect para inicializar la cámara una vez que el composable se muestra
             LaunchedEffect(key1 = true) {
@@ -798,49 +866,39 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
     }
 }
 
-fun takePhoto(
-    imageCapture: ImageCapture,
-    context: Context,
-    onPhotoTaken: (Uri) -> Unit
-) {
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, "photo_${System.currentTimeMillis()}")
-        put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-    }
+fun rotateImageIfRequired(context: Context, photoFile: File): Bitmap {
+    val bitmap = BitmapFactory.decodeFile(photoFile.path)
+    val exif = ExifInterface(photoFile.path)
+    val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
 
-    val imageUri = context.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-
-    if (imageUri != null) {
-        val outputStream = context.contentResolver.openOutputStream(imageUri)
-
-        if (outputStream != null) {
-            val outputOptions = ImageCapture.OutputFileOptions.Builder(outputStream).build()
-
-            // Tomamos la foto
-            imageCapture.takePicture(
-                outputOptions,
-                ContextCompat.getMainExecutor(context),
-                object : ImageCapture.OnImageSavedCallback {
-                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                        // Llamamos a la función `onPhotoTaken` con el URI de la foto tomada
-                        onPhotoTaken(imageUri)
-                    }
-
-                    override fun onError(exception: ImageCaptureException) {
-                        // En caso de error, mostramos un mensaje
-                        Toast.makeText(context, "Error al tomar la foto: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            )
-        } else {
-            Toast.makeText(context, "Error al abrir el OutputStream para guardar la imagen", Toast.LENGTH_SHORT).show()
-        }
-    } else {
-        Toast.makeText(context, "Error al crear URI para la imagen", Toast.LENGTH_SHORT).show()
+    return when (orientation) {
+        ExifInterface.ORIENTATION_ROTATE_90 -> rotateImage(bitmap, 90f)
+        ExifInterface.ORIENTATION_ROTATE_180 -> rotateImage(bitmap, 180f)
+        ExifInterface.ORIENTATION_ROTATE_270 -> rotateImage(bitmap, 270f)
+        else -> bitmap
     }
 }
 
+fun rotateImage(img: Bitmap, degree: Float): Bitmap {
+    val matrix = Matrix()
+    matrix.postRotate(degree)
+    return Bitmap.createBitmap(img, 0, 0, img.width, img.height, matrix, true)
+}
 
+fun getFileFromUri(context: Context, uri: Uri): File? {
+    return try {
+        val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
+        val tempFile = File(context.cacheDir, "temp_image_${System.currentTimeMillis()}.jpg")
+        val outputStream = FileOutputStream(tempFile)
+        inputStream?.copyTo(outputStream)
+        inputStream?.close()
+        outputStream.close()
+        return tempFile
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
 
 // Calendario de actividades
 
@@ -1097,22 +1155,22 @@ fun MapScreen(
     actividad: Actividad,
     participantes: MutableSet<String>
 ) {
-
-    val puntosInteres: List<PuntoInteres> by puntosInteresViewModel.puntosInteres.observeAsState( emptyList() )
     val porDefecto = LatLng(43.35257675380246, -4.062506714329061)// Ies Miguel Herrero
     var localizacion: LatLng = porDefecto
 
     if(actividad.latitud != null && actividad.longitud != null){
         localizacion = LatLng(actividad.latitud.toDouble(), actividad.longitud.toDouble())
     }
-
-    var markers by remember { mutableStateOf(listOf<Pair<LatLng, String>>()) }
-
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(localizacion, 17f) }
 
+    val puntosInteres: List<PuntoInteres> by puntosInteresViewModel.puntosInteres.observeAsState( emptyList() )
+    //var markers by remember { mutableStateOf(listOf<Pair<LatLng, String>>()) }
+
     var markerToDelete by remember { mutableStateOf<Pair<LatLng, String>?>(null) }
+
     var newMarkerPosition by remember { mutableStateOf<LatLng?>(null) }
     var description by remember { mutableStateOf("") }
+
     var show by remember { mutableStateOf(false) }
     var enable by remember { mutableStateOf(false) }
 
@@ -1135,27 +1193,15 @@ fun MapScreen(
 
         }
     ) {
-        markers.forEach { (position, description) ->
+        puntosInteres.forEach{ pto ->
+            val pos = LatLng(pto.latitud.toDouble(), pto.longitud.toDouble())
             Marker(
-                state = MarkerState(position = position),
+                state = MarkerState(position = pos),
                 title = actividad.titulo,
-                snippet = description,
+                snippet = pto.descripcion,
                 onInfoWindowLongClick = {
                     if(enable){
-                        markerToDelete = Pair(position, description)
-                    }
-                }
-            )
-        }
-        puntosInteres.forEach() { puntoInteres ->
-            val marker = LatLng(puntoInteres.latitud.toDouble(), puntoInteres.longitud.toDouble())
-            Marker(
-                state = MarkerState(position = marker),
-                title = actividad.titulo,
-                snippet = puntoInteres.descripcion,
-                onInfoWindowLongClick = {
-                    if(enable){
-                        markerToDelete = Pair(marker, puntoInteres.descripcion)
+                        markerToDelete = Pair(pos, pto.descripcion)
                     }
                 }
             )
@@ -1181,7 +1227,6 @@ fun MapScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     Row {
                         Button(onClick = {
-                            markers = markers.filterNot { it.first == position }
                             puntosInteres.forEach() { puntoInteres ->
                                 val marker = LatLng(puntoInteres.latitud.toDouble(), puntoInteres.longitud.toDouble())
                                 if (marker == position) {
@@ -1213,7 +1258,6 @@ fun MapScreen(
             onDismissRequest = { },
             confirmButton = {
                 Button(onClick = {
-                    markers = markers + Pair(newMarkerPosition!!, description)
                     val puntoInteres = PuntoInteres(
                         id = null,
                         descripcion = description,
@@ -1222,6 +1266,7 @@ fun MapScreen(
                         actividad = actividad
                     )
                     puntosInteresViewModel.savePuntoInteres(puntoInteres)
+
                     show = false
                 }) {
                     Text("Aceptar")
@@ -1243,6 +1288,15 @@ fun MapScreen(
             }
         )
     }
+}
+
+fun pintaptos(puntosInteres: List<PuntoInteres>): List<Pair<LatLng, String>> {
+    val markers = mutableListOf<Pair<LatLng, String>>()
+    puntosInteres.forEach { puntoInteres ->
+        val pos = LatLng(puntoInteres.latitud.toDouble(), puntoInteres.longitud.toDouble())
+        markers.add(pos to puntoInteres.descripcion)
+    }
+    return markers
 }
 
 fun formatFecha(fecha: String): String {

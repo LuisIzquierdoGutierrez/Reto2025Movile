@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
+import com.example.reto2025_mobile.ViewModel.FotoViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfResponsableViewModel
@@ -26,7 +27,8 @@ fun NavManager(
     profParticipanteViewModel: ProfParticipanteViewModel,
     grupoParticipanteViewModel: GrupoParticipanteViewModel,
     profResponsableViewModel: ProfResponsableViewModel,
-    puntosInteresViewModel: PuntosInteresViewModel
+    puntosInteresViewModel: PuntosInteresViewModel,
+    fotoViewModel: FotoViewModel
 ) {
     NavHost(
         navController = navController,
@@ -45,7 +47,7 @@ fun NavManager(
             MisActividades(navController, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel)
         }
         composable("details"){
-            DetailsView(navController, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel, puntosInteresViewModel)
+            DetailsView(navController, actividadViewModel, profParticipanteViewModel, grupoParticipanteViewModel, puntosInteresViewModel, fotoViewModel)
         }
         composable("FAQ"){
             FAQView(navController)

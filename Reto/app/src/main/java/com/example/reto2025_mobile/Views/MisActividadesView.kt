@@ -79,7 +79,8 @@ fun MisActividades(
 
     Scaffold(
         topBar = { ActividadesTopAppBar(navController) },
-        bottomBar = { BottomAppBar(navController = navController) }
+        bottomBar = { BottomAppBar(navController = navController) },
+        containerColor = Color.LightGray
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -91,9 +92,7 @@ fun MisActividades(
                 Spacer(modifier = Modifier.height(12.dp))
                 Card(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)
-                        .fillMaxHeight(),
+                        .padding(8.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     onClick = {
@@ -126,7 +125,6 @@ fun MisActividades(
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(8.dp)
-                                    .fillMaxHeight()
                                     .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = CardDefaults.cardColors(containerColor = color),
@@ -161,9 +159,7 @@ fun MisActividades(
                 Spacer(modifier = Modifier.height(4.dp))
                 Card(
                     modifier = Modifier
-                        .weight(1f)
-                        .padding(8.dp)
-                        .fillMaxHeight(),
+                        .padding(8.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.White),
                     onClick = {
@@ -196,7 +192,6 @@ fun MisActividades(
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(8.dp)
-                                    .fillMaxHeight()
                                     .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = CardDefaults.cardColors(containerColor = color),

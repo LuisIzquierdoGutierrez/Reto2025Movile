@@ -1,6 +1,8 @@
 package com.example.reto2025_mobile.ViewModel
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -9,17 +11,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.reto2025_mobile.API.RetrofitServiceFactory
 import com.example.reto2025_mobile.data.Foto
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.ResponseBody
 import retrofit2.Response
 import java.io.File
+import java.io.InputStream
 
 
 class FotoViewModel: ViewModel() {
+
     private val _foto = MutableLiveData<Response<ResponseBody>>()
     val foto: LiveData<Response<ResponseBody>> = _foto
     private val _fotos = MutableLiveData<List<Foto>>()
@@ -27,11 +34,27 @@ class FotoViewModel: ViewModel() {
 
     private val service = RetrofitServiceFactory.makeRetrofitService()
 
-    fun getFotoActividad(actividadId: Int, id : Int) {
+    val bitmaps = MutableStateFlow<List<Bitmap>>(emptyList())
+
+
+    fun fetchFotos(idActividad: Int) {
+        // Limpiar fotos actuales antes de cargar nuevas
+        bitmaps.value = emptyList()
+
         viewModelScope.launch {
             try {
-                val foto = service.getFotoActividad(actividadId,id)
-                _foto.value = foto
+                val fotos = service.getFotos(idActividad)
+                val bitmapsList = fotos.mapNotNull { foto ->
+                    try {
+                        val response = service.getFoto(idActividad, foto.id)
+                        val inputStream: InputStream = response.byteStream()
+                        BitmapFactory.decodeStream(inputStream)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                }
+                bitmaps.value = bitmapsList
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -53,49 +76,39 @@ class FotoViewModel: ViewModel() {
         getFotos()
     }
 
-    fun uploadPhoto(context: Context, idActividad: Int, descripcion: String, uri: Uri) {
+    fun uploadPhoto(
+        context: Context,
+        idActividad: Int,
+        descripcion: String,
+        uri: Uri
+    ): LiveData<Result<Unit>> {
+        val liveData = MutableLiveData<Result<Unit>>()
         viewModelScope.launch {
             try {
-                // Prepara la parte del archivo
-                Log.d("foto", "uploadPhoto: ${uri.path}")
-                Log.d("foto", "uploadPhoto: $idActividad")
-                val filePart = prepareFilePart(context, uri)
-                // Llama al servicio para subir la foto
-                val response: Response<Foto> = service.uploadPhoto(idActividad, descripcion, filePart)
+                // Preparar archivo como MultipartBody.Part
+                val file = File(uri.path!!)
+                val requestBody = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                val photoPart = MultipartBody.Part.createFormData("fichero", file.name, requestBody)
+                val descripcionPart = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
+
+                // Llamar a Retrofit
+                val response = RetrofitServiceFactory.makeRetrofitService().uploadPhoto(idActividad, descripcionPart, photoPart)
                 if (response.isSuccessful) {
-                    val foto: Foto? = response.body()
-                    // Manejar la instancia de Foto si es necesario
+                    liveData.postValue(Result.success(Unit))
+
                 } else {
-                    // Manejar respuesta de error
+                    liveData.postValue(Result.failure(Exception("Error en la respuesta: ${response.code()}")))
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                liveData.postValue(Result.failure(e))
             }
         }
+        return liveData
     }
 
-    fun prepareFilePart(context: Context, uri: Uri): MultipartBody.Part {
-        // Convert Uri to File
-        val file = File(getRealPathFromURI(context, uri))
 
-        // Create a RequestBody for the file
-        val requestBody = RequestBody.create(
-            context.contentResolver.getType(uri)?.let { it.toMediaTypeOrNull() }, file
-        )
 
-        // Wrap the file into a MultipartBody.Part
-        return MultipartBody.Part.createFormData("fichero", file.name, requestBody)
-    }
 
-    fun getRealPathFromURI(context: Context, contentUri: Uri): String {
-        val cursor = context.contentResolver.query(contentUri, null, null, null, null)
-        cursor?.let {
-            it.moveToFirst()
-            val index = it.getColumnIndex(android.provider.MediaStore.Images.Media.DATA)
-            return it.getString(index)
-        }
-        return ""
-    }
 
 }
 

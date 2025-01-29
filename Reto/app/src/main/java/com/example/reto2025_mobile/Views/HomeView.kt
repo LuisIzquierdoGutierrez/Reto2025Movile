@@ -17,13 +17,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -32,7 +33,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -40,8 +40,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -61,7 +61,6 @@ import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
 import com.example.reto2025_mobile.ViewModel.ProfParticipanteViewModel
 import com.example.reto2025_mobile.data.Actividad
 import com.example.reto2025_mobile.data.Foto
-import com.example.reto2025_mobile.ui.theme.BlueContainer
 import com.example.reto2025_mobile.ui.theme.GreenBar
 import java.time.LocalDate
 
@@ -71,7 +70,7 @@ fun HomeView(
     actividadViewModel: ActividadViewModel,
     profParticipanteViewModel: ProfParticipanteViewModel,
     grupoParticipanteViewModel: GrupoParticipanteViewModel,
-    fotoViewModel: FotoViewModel = viewModel() // Asegúrate de pasar el FotoViewModel o instanciarlo
+    fotoViewModel: FotoViewModel = viewModel()
 
 ) {
 
@@ -85,7 +84,8 @@ fun HomeView(
 
     Scaffold(
         topBar = { HomeAppBar(navController) },
-        bottomBar = { BottomAppBar(navController = navController) }
+        bottomBar = { BottomAppBar(navController = navController) },
+        containerColor = Color.LightGray
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -95,15 +95,48 @@ fun HomeView(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+
             ) {
-                Spacer(modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.size(30.dp))
                 // Sección de historias
 
-                Text(
-                    text = "Últimas actividades realizadas",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                )
+                Card(
+                    modifier = Modifier
+                        .padding(4.dp).fillMaxWidth().height(65.dp),                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    onClick = {
+                    }
+                ) {
+                    Row(modifier = Modifier.align(Alignment.CenterHorizontally).padding(16.dp)) {
+                        Icon(imageVector = Icons.Default.Person, contentDescription = "Icono de usuario", modifier = Modifier.size(30.dp))
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Text(
+                            text = "${Usuario.nombre} ${Usuario.apellidos}",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+
+
+                Spacer(modifier = Modifier.size(30.dp))
+                // Sección de historias
+
+                Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "izqd")
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Text(
+                        text = "Ultimas actividades realizadas",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Spacer(modifier = Modifier.width(2.dp))
+                    Icon(imageVector = Icons.Default.KeyboardArrowRight, contentDescription = "dcha")
+                }
+
+                Spacer(modifier = Modifier.size(20.dp))
 
                 Row(
                     modifier = Modifier
@@ -112,6 +145,54 @@ fun HomeView(
                 ) {
 
                     LazyRow {
+                        items(actividades) { actividad ->
+
+                            val color = SelectColor(actividad.estado)
+
+                            if (actividad.ffin < LocalDate.now().toString() && actividad.ffin >= LocalDate.now().minusDays(7).toString()) {
+                                Card(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .padding(8.dp)
+                                        .fillMaxHeight()
+                                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = color),
+                                    onClick = {
+                                        actividadViewModel.getActividadById(actividad.id)
+                                        profParticipanteViewModel.getProfesoresParticipantes()
+                                        grupoParticipanteViewModel.getGruposParticipantes()
+                                        navController.navigate("details")
+                                    },
+                                    border = if (actividad.fini == LocalDate.now().toString()) BorderStroke(3.dp, GreenBar) else null
+                                ) {
+                                    val fechaInicio = formatFecha(actividad.fini)
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp)
+                                    ) {
+                                        Column {
+                                            Text(
+                                                text = actividad.titulo,
+                                                fontSize = 18.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF000000),
+                                                textAlign = TextAlign.Start
+                                            )
+                                            Text(
+                                                text = "Fecha Actividad: ${fechaInicio}",
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF000000),
+                                                textAlign = TextAlign.Start
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        /*
                         items(actividades) { actividad ->
 
                             // Cargar las fotos cuando el ID de la actividad cambie
@@ -178,7 +259,7 @@ fun HomeView(
                                     }
                                 }
                             }
-                        }
+                        }*/
                     }
                 }
 
@@ -231,7 +312,7 @@ fun HomeView(
                     }
                 }
 
-
+                /*
                 Text(
                     text = "Bienvenido/a  ${Usuario.nombre}",
                     fontSize = 27.sp,
@@ -258,7 +339,7 @@ fun HomeView(
                         )
                     }
                 }
-
+                */
 
                 Spacer(modifier = Modifier.size(20.dp))
 
