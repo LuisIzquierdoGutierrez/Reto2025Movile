@@ -1,6 +1,7 @@
 package com.example.reto2025_mobile.Views
 
 import android.graphics.Bitmap
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -94,6 +96,8 @@ fun DetailsView(
         }
     }
 
+    val context = LocalContext.current
+
     var showPic by remember { mutableStateOf(false) }
     var selectedBitmap by remember { mutableStateOf<Bitmap?>(null) }
 
@@ -124,10 +128,11 @@ fun DetailsView(
                     actividad = actividad!!,
                     profParticipantes = profParticipantes,
                     puntosInteresViewModel = puntosInteresViewModel,
-                    participantes = participantes
+                    participantes = participantes,
+                    actividadViewModel = actividadViewModel,
+                    navController = navController
                 )
-            },
-            containerColor = Color.LightGray
+            }
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -396,6 +401,7 @@ fun DetailsView(
                                             val updateActividad =
                                                 actividad!!.copy(incidencias = incidencias)
                                             actividadViewModel.updateActividad(updateActividad)
+                                            Toast.makeText(context, "Cambios guardados correctamente", Toast.LENGTH_SHORT).show()
                                         },
                                         modifier = Modifier
                                             .fillMaxWidth()
@@ -407,7 +413,7 @@ fun DetailsView(
                                         )
                                     ) {
                                         Text(
-                                            text = "Añadir incidencia",
+                                            text = "Guardar incidencia",
                                             fontWeight = FontWeight.Bold
                                         )
                                     }
@@ -586,8 +592,7 @@ fun DetailsView(
                                                         grupoParticipanteViewModel.updateGrupoParticipante(
                                                             updateGrupoParticipante
                                                         )
-
-
+                                                        Toast.makeText(context, "Cambios guardados correctamente", Toast.LENGTH_SHORT).show()
                                                     },
                                                     modifier = Modifier
                                                         .fillMaxWidth()
@@ -623,7 +628,7 @@ fun DetailsView(
             }
         }
         BackHandler {
-            navController.popBackStack()
+            navController.navigate("home")
         }
     }
 }

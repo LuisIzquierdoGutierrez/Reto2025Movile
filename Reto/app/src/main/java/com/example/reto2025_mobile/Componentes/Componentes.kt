@@ -126,6 +126,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.time.DayOfWeek
 
 //Top bar de la pantalla de Detalles de una actividad
 
@@ -146,7 +147,7 @@ fun DetailTopBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = { navController.navigate("home") }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
         },
@@ -174,7 +175,7 @@ fun ActividadesTopAppBar(navController: NavController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = { navController.navigate("home") }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
         },
@@ -199,7 +200,7 @@ fun ActividadesTopAppBar(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PerfilTopAppBar(navController: NavController) {
+fun AppBar(navController: NavController) {
     TopAppBar(
         title = {
             Icon(
@@ -283,33 +284,6 @@ fun HomeAppBar(navController: NavController) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AppBar(navController: NavController) {
-    var showlogout by remember { mutableStateOf(false) }
-    TopAppBar(
-        title = {
-            Icon(
-                painter = painterResource(R.drawable.logowhite), // Asegúrate de tener un logo blanco en res/drawable
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(250.dp), // Ajusta el tamaño según sea necesario
-                tint = Color.Unspecified // Asegúrate de que el color no se sobreescriba
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = GreenBar,
-            titleContentColor = Color.White
-        )
-    )
-}
-
 // Bottom Bar con navegacion entre pantallas
 
 @Composable
@@ -347,7 +321,9 @@ fun BottomDetailBar(
     actividad: Actividad,
     profParticipantes: List<ProfParticipante>,
     puntosInteresViewModel: PuntosInteresViewModel,
-    participantes: MutableSet<String>
+    participantes: MutableSet<String>,
+    actividadViewModel: ActividadViewModel,
+    navController: NavController
 ) {
     Row(
         modifier = Modifier
@@ -376,7 +352,13 @@ fun BottomDetailBar(
                 enabled = enabledAddPhoto
 
             ) {
-                if (showPhoto) actividad.id?.let { Fotos(onDismiss = { showPhoto = false }, idActividad = it, fotoViewModel = FotoViewModel()) }
+                if (showPhoto) actividad.id?.let { Fotos(
+                    onDismiss = { showPhoto = false },
+                    idActividad = it,
+                    fotoViewModel = FotoViewModel(),
+                    actividadViewModel = actividadViewModel,
+                    navController = navController
+                ) }
                 Row {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.addphoto),
@@ -486,7 +468,7 @@ fun createPartFromString(description: String): RequestBody {
 }
 
 @Composable
-fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel) {
+fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel, actividadViewModel: ActividadViewModel, navController: NavController) {
     val context = LocalContext.current
     val selectedImageUris: SnapshotStateList<Uri?> = remember { mutableStateListOf<Uri?>() }
 
@@ -644,16 +626,19 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
                                         fotoViewModel.uploadPhoto(context, idActividad, descripcion, savedUri).observeForever { result ->
                                             if (result.isSuccess) {
                                                 fotoViewModel.fetchFotos(idActividad)
-                                                //Toast.makeText(context, "Foto subida con éxito: $uri", Toast.LENGTH_LONG).show()
+                                                Toast.makeText(context, "Foto guardada correctamente", Toast.LENGTH_SHORT).show()
                                             } else {
 
-                                                //Toast.makeText(context, "Error al subir la foto: ${uri}", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, "Error al guardar foto", Toast.LENGTH_SHORT).show()
                                                 //Log.d("pruebasubida","Error al subir la foto")
                                             }
                                         }
 
                                     }
                                 }
+
+                                actividadViewModel.getActividadById(idActividad)
+                                navController.navigate("details")
                                 onDismiss()
                             }
                         ) {
@@ -946,7 +931,7 @@ fun ActivityCalendarApp(
             Calendar(
                 calendarState = calendarState,
                 showAdjacentMonths = true,
-                firstDayOfWeek = java.time.DayOfWeek.MONDAY,
+                firstDayOfWeek = DayOfWeek.MONDAY,
                 dayContent = { dayState ->
                     MyDayContentWithActivities(
                         dayState,
@@ -1161,14 +1146,17 @@ fun MapScreen(
     if(actividad.latitud != null && actividad.longitud != null){
         localizacion = LatLng(actividad.latitud.toDouble(), actividad.longitud.toDouble())
     }
+
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(localizacion, 17f) }
 
     val puntosInteres: List<PuntoInteres> by puntosInteresViewModel.puntosInteres.observeAsState( emptyList() )
+
     //var markers by remember { mutableStateOf(listOf<Pair<LatLng, String>>()) }
 
     var markerToDelete by remember { mutableStateOf<Pair<LatLng, String>?>(null) }
 
     var newMarkerPosition by remember { mutableStateOf<LatLng?>(null) }
+
     var description by remember { mutableStateOf("") }
 
     var show by remember { mutableStateOf(false) }

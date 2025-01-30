@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.compose.rememberNavController
 import com.example.reto2025_mobile.API.RetrofitServiceFactory
 import com.example.reto2025_mobile.data.Foto
 import kotlinx.coroutines.flow.MutableStateFlow

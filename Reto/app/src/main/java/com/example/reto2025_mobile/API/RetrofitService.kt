@@ -128,8 +128,8 @@ interface RetrofitService {
 object RetrofitServiceFactory {
     fun makeRetrofitService(): RetrofitService {
         return Retrofit.Builder()
-            .baseUrl("http://10.0.22.68:8080/acex/")
-            //.baseUrl("http://192.168.1.134:8080/acex/")
+            //.baseUrl("http://10.0.22.68:8080/acex/")
+            .baseUrl("http://192.168.1.134:8080/acex/")
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(RetrofitService::class.java)
     }

@@ -84,8 +84,7 @@ fun HomeView(
 
     Scaffold(
         topBar = { HomeAppBar(navController) },
-        bottomBar = { BottomAppBar(navController = navController) },
-        containerColor = Color.LightGray
+        bottomBar = { BottomAppBar(navController = navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

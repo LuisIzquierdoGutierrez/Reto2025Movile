@@ -34,8 +34,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.reto2025_mobile.Componentes.AppBar
 import com.example.reto2025_mobile.Componentes.BottomAppBar
-import com.example.reto2025_mobile.Componentes.PerfilTopAppBar
 import com.example.reto2025_mobile.Componentes.Usuario
 import com.example.reto2025_mobile.ui.theme.BlueContainer
 
@@ -44,9 +44,8 @@ fun PerfilView(
     navController: NavController
 ) {
     Scaffold(
-        topBar = { PerfilTopAppBar(navController) },
-        bottomBar = { BottomAppBar(navController = navController) },
-        containerColor = Color.LightGray
+        topBar = { AppBar(navController) },
+        bottomBar = { BottomAppBar(navController = navController) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
