@@ -63,7 +63,7 @@ fun CalendarView(
             }
         }
         BackHandler {
-
+            navController.popBackStack()
         }
     }
 }

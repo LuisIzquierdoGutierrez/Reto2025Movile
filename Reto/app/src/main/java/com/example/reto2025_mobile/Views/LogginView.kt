@@ -70,7 +70,7 @@ fun LogginView(
     var users: List<Usuario> by remember { mutableStateOf(listOf()) }
 
     LaunchedEffect(Unit) {
-        users = readLogData(context)
+        //users = readLogData(context)
         val (savedEmail, savedPassword) = getLoginData(context)
         if (savedEmail != null && savedPassword != null) {
             user = savedEmail

@@ -128,7 +128,9 @@ fun DetailsView(
                     actividad = actividad!!,
                     profParticipantes = profParticipantes,
                     puntosInteresViewModel = puntosInteresViewModel,
-                    participantes = participantes
+                    participantes = participantes,
+                    actividadViewModel = actividadViewModel,
+                    navController = navController
                 )
             }
         ) { innerPadding ->
@@ -626,7 +628,7 @@ fun DetailsView(
             }
         }
         BackHandler {
-            navController.popBackStack()
+            navController.navigate("home")
         }
     }
 }

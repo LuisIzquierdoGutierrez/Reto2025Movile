@@ -1,5 +1,6 @@
 package com.example.reto2025_mobile.Views
 
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.border
@@ -69,6 +70,7 @@ fun MisActividades(
     profParticipanteViewModel: ProfParticipanteViewModel,
     grupoParticipanteViewModel: GrupoParticipanteViewModel
 ) {
+
     val profesParticipantes: List<ProfParticipante> by profParticipanteViewModel.profesoresParticipantes.observeAsState(
         emptyList()
     )
@@ -87,7 +89,10 @@ fun MisActividades(
                 .padding(innerPadding)
         ) {
 
-            Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Card(
                     modifier = Modifier
@@ -184,38 +189,43 @@ fun MisActividades(
                     }
                 }
                 LazyColumn {
-                    items(profesParticipantes) { actividad ->
-                        var color = SelectColor(actividad.actividad.estado)
-                        if (actividad.profesor.uuid.equals(Usuario.uuid)) {
-                            Card(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(8.dp)
-                                    .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = CardDefaults.cardColors(containerColor = color),
-                                onClick = {
-                                    actividadViewModel.getActividadById(actividad.id)
-                                    navController.navigate("details")
-                                }
-                            ) {
-                                Row(
+                    items(actividades) { actividad ->
+                        var color = SelectColor(actividad.estado)
+                        profesParticipantes.forEach { prof ->
+                            if (prof.actividad.id == actividad.id && prof.profesor.uuid == Usuario.uuid) {
+                                Card(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.Center
+                                        .weight(1f)
+                                        .padding(8.dp)
+                                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp)),
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = CardDefaults.cardColors(containerColor = color),
+                                    onClick = {
+                                        Log.d(
+                                            "pto",
+                                            "MisActividades:  ${prof.profesor.nombre}"
+                                        )
+                                        actividadViewModel.getActividadById(actividad.id)
+                                        navController.navigate("details")
+                                    }
                                 ) {
-
-                                    Spacer(modifier = Modifier.width(25.dp))
-                                    Text(
-                                        text = actividad.actividad.titulo,
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF000000),
-                                        modifier = Modifier.padding(bottom = 8.dp),
-                                        textAlign = TextAlign.Center
-                                    )
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(16.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.Center
+                                    ) {
+                                        Spacer(modifier = Modifier.width(25.dp))
+                                        Text(
+                                            text = actividad.titulo,
+                                            fontSize = 18.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFF000000),
+                                            modifier = Modifier.padding(bottom = 8.dp),
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -224,6 +234,7 @@ fun MisActividades(
             }
         }
     }
+
 // dialogs de filtrado
 
 

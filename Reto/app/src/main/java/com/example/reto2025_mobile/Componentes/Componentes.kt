@@ -126,6 +126,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.time.DayOfWeek
 
 //Top bar de la pantalla de Detalles de una actividad
 
@@ -146,7 +147,7 @@ fun DetailTopBar(
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = { navController.navigate("home") }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
         },
@@ -174,7 +175,7 @@ fun ActividadesTopAppBar(navController: NavController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = { navController.navigate("home") }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
         },
@@ -299,7 +300,7 @@ fun AppBar(navController: NavController) {
             )
         },
         navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
+            IconButton(onClick = { navController.navigate("home") }) {
                 Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
             }
         },
@@ -347,7 +348,9 @@ fun BottomDetailBar(
     actividad: Actividad,
     profParticipantes: List<ProfParticipante>,
     puntosInteresViewModel: PuntosInteresViewModel,
-    participantes: MutableSet<String>
+    participantes: MutableSet<String>,
+    actividadViewModel: ActividadViewModel,
+    navController: NavController
 ) {
     Row(
         modifier = Modifier
@@ -376,7 +379,13 @@ fun BottomDetailBar(
                 enabled = enabledAddPhoto
 
             ) {
-                if (showPhoto) actividad.id?.let { Fotos(onDismiss = { showPhoto = false }, idActividad = it, fotoViewModel = FotoViewModel()) }
+                if (showPhoto) actividad.id?.let { Fotos(
+                    onDismiss = { showPhoto = false },
+                    idActividad = it,
+                    fotoViewModel = FotoViewModel(),
+                    actividadViewModel = actividadViewModel,
+                    navController = navController
+                ) }
                 Row {
                     Icon(
                         imageVector = ImageVector.vectorResource(R.drawable.addphoto),
@@ -486,7 +495,7 @@ fun createPartFromString(description: String): RequestBody {
 }
 
 @Composable
-fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel) {
+fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel, actividadViewModel: ActividadViewModel, navController: NavController) {
     val context = LocalContext.current
     val selectedImageUris: SnapshotStateList<Uri?> = remember { mutableStateListOf<Uri?>() }
 
@@ -654,6 +663,9 @@ fun Fotos(onDismiss: () -> Unit, idActividad: Int, fotoViewModel: FotoViewModel)
 
                                     }
                                 }
+
+                                actividadViewModel.getActividadById(idActividad)
+                                navController.navigate("details")
                                 onDismiss()
                             }
                         ) {
@@ -946,7 +958,7 @@ fun ActivityCalendarApp(
             Calendar(
                 calendarState = calendarState,
                 showAdjacentMonths = true,
-                firstDayOfWeek = java.time.DayOfWeek.MONDAY,
+                firstDayOfWeek = DayOfWeek.MONDAY,
                 dayContent = { dayState ->
                     MyDayContentWithActivities(
                         dayState,
@@ -1161,14 +1173,17 @@ fun MapScreen(
     if(actividad.latitud != null && actividad.longitud != null){
         localizacion = LatLng(actividad.latitud.toDouble(), actividad.longitud.toDouble())
     }
+
     val cameraPositionState = rememberCameraPositionState { position = CameraPosition.fromLatLngZoom(localizacion, 17f) }
 
     val puntosInteres: List<PuntoInteres> by puntosInteresViewModel.puntosInteres.observeAsState( emptyList() )
+
     //var markers by remember { mutableStateOf(listOf<Pair<LatLng, String>>()) }
 
     var markerToDelete by remember { mutableStateOf<Pair<LatLng, String>?>(null) }
 
     var newMarkerPosition by remember { mutableStateOf<LatLng?>(null) }
+
     var description by remember { mutableStateOf("") }
 
     var show by remember { mutableStateOf(false) }

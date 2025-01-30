@@ -149,7 +149,7 @@ fun FAQView(navController: NavController) {
         }
     }
     BackHandler {
-        navController.navigate("home")
+        navController.popBackStack()
     }
 }
 
