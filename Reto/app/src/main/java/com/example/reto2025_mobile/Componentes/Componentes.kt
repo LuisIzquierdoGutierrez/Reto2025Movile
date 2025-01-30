@@ -200,7 +200,7 @@ fun ActividadesTopAppBar(navController: NavController) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PerfilTopAppBar(navController: NavController) {
+fun AppBar(navController: NavController) {
     TopAppBar(
         title = {
             Icon(
@@ -281,33 +281,6 @@ fun HomeAppBar(navController: NavController) {
                 }
             }
         },
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AppBar(navController: NavController) {
-    var showlogout by remember { mutableStateOf(false) }
-    TopAppBar(
-        title = {
-            Icon(
-                painter = painterResource(R.drawable.logowhite), // Asegúrate de tener un logo blanco en res/drawable
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(250.dp), // Ajusta el tamaño según sea necesario
-                tint = Color.Unspecified // Asegúrate de que el color no se sobreescriba
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = { navController.navigate("home") }) {
-                Icon(imageVector = Icons.Default.KeyboardArrowLeft, contentDescription = "Back")
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = GreenBar,
-            titleContentColor = Color.White
-        )
     )
 }
 

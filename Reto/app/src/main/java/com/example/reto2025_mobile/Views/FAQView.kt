@@ -30,9 +30,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.reto2025_mobile.Componentes.AppBar
 import com.example.reto2025_mobile.Componentes.BottomAppBar
-import com.example.reto2025_mobile.Componentes.PerfilTopAppBar
-import com.example.reto2025_mobile.ui.theme.GreenBar
 import com.example.reto2025_mobile.ui.theme.BlueContainer
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -42,7 +41,7 @@ fun FAQView(navController: NavController) {
     var despfaq by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { PerfilTopAppBar(navController) },
+        topBar = { AppBar(navController) },
         bottomBar = { BottomAppBar(navController = navController) }
     ) { innerPadding ->
         Box(

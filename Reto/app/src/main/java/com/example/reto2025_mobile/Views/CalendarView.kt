@@ -14,8 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavController
+import com.example.reto2025_mobile.Componentes.ActividadesTopAppBar
 import com.example.reto2025_mobile.Componentes.ActivityCalendarApp
-import com.example.reto2025_mobile.Componentes.AppBar
 import com.example.reto2025_mobile.Componentes.BottomAppBar
 import com.example.reto2025_mobile.ViewModel.ActividadViewModel
 import com.example.reto2025_mobile.ViewModel.GrupoParticipanteViewModel
@@ -34,7 +34,7 @@ fun CalendarView(
     val actividades: List<Actividad> by actividadViewModel.actividades.observeAsState(emptyList())
 
     Scaffold(
-        topBar = { AppBar(navController) },
+        topBar = { ActividadesTopAppBar(navController) },
         bottomBar = { BottomAppBar(navController = navController) }
     ) { innerPadding ->
         Box(

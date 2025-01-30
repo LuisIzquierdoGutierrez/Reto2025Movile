@@ -35,7 +35,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.reto2025_mobile.Componentes.BottomAppBar
-import com.example.reto2025_mobile.Componentes.PerfilTopAppBar
+import com.example.reto2025_mobile.Componentes.HomeAppBar
 import com.example.reto2025_mobile.Componentes.Usuario
 import com.example.reto2025_mobile.ui.theme.BlueContainer
 
@@ -44,7 +44,7 @@ fun PerfilView(
     navController: NavController
 ) {
     Scaffold(
-        topBar = { PerfilTopAppBar(navController) },
+        topBar = { HomeAppBar(navController) },
         bottomBar = { BottomAppBar(navController = navController) }
     ) { innerPadding ->
         Box(
